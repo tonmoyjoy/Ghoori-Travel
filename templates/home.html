@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Booking Home</title>
+    <style>
+        body { font-family: sans-serif; background: #eef2f3; text-align: center; }
+        .container { padding: 50px; }
+        .card { display: inline-block; margin: 15px; padding: 20px; background: white; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); width: 150px; text-decoration: none; color: black; }
+        .card:hover { background: #dceeff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Select Transport Type</h2>
+        <a href="{{ url_for('book', transport_type='flight') }}" class="card">✈️ Flight</a>
+        <a href="{{ url_for('book', transport_type='bus') }}" class="card">🚌 Bus</a>
+        <a href="{{ url_for('book', transport_type='train') }}" class="card">🚆 Train</a>
+        <a href="{{ url_for('book', transport_type='car') }}" class="card">🚗 Car</a>
+    </div>
+</body>
+</html>

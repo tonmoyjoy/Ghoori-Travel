@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Nearby Hospitals - Ghoori.com{% endblock %}
+
+{% block style %}
+.map-container {
+    height: 400px;
+    margin-bottom: 2rem;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.hospital-card {
+    transition: transform 0.3s;
+    margin-bottom: 1rem;
+    border-left: 4px solid var(--primary-color);
+}
+
+.hospital-card:hover {
+    transform: translateY(-5px);
+}
+
+.search-form {
+    max-width: 600px;
+    margin: 0 auto 2rem;
+}
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="text-center mb-4">
+        <h1 class="display-4 text-primary mb-3"><i class="fas fa-hospital me-3"></i>Find Hospitals</h1>
+        <p class="lead">Locate nearby medical facilities for emergency care</p>
+    </div>
+
+    <form method="POST" class="search-form">
+        <div class="input-group">
+            <input type="text" 
+                   class="form-control" 
+                   name="location" 
+                   placeholder="Enter your location (e.g. Gulshan, Dhaka)"
+                   value="{{ location if location }}"
+                   required>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-search me-2"></i>Search</button>
+        </div>
+    </form>
+
+    {% if error %}
+    <div class="alert alert-danger">
+        <i class="fas fa-exclamation-circle me-2"></i>{{ error }}
+    </div>
+    {% endif %}
+
+    <div class="card shadow-sm">
+        <div class="card-body">
+            {% if hospitals %}
+                <div class="text-muted mb-4">
+                    <i class="fas fa-info-circle me-2"></i>Found {{ hospitals|length }} hospitals near "{{ location }}"
+                </div>
+                {% for hospital in hospitals %}
+                <div class="card hospital-card mb-3">
+                    <div class="card-body">
+                        <h3 class="h5 text-primary mb-3">
+                            <i class="fas fa-hospital-alt me-2"></i>{{ hospital.name }}
+                        </h3>
+                        {% if hospital.address != 'Address not available' %}
+                        <div class="mb-2">
+                            <i class="fas fa-map-marker-alt me-2"></i>{{ hospital.address }}
+                        </div>
+                        {% endif %}
+                        <div class="text-muted small mb-3">
+                            <i class="fas fa-location-arrow me-2"></i>Coordinates: {{ "%.6f"|format(hospital.lat) }}, {{ "%.6f"|format(hospital.lon) }}
+                        </div>
+                        <a href="{{ hospital.map_url }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-map-marked-alt me-2"></i>View on Google Maps
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            {% elif location %}
+                <div class="text-center text-muted py-5">
+                    <i class="fas fa-search me-2"></i>No hospitals found near "{{ location }}"
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

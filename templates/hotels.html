@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Nearby Hotels{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <div class="card-header">Find Hotels</div>
+        <div class="card-body">
+            <form method="POST">
+                <input type="text" name="location" class="form-control" placeholder="Enter a location" required>
+                <button type="submit" class="btn btn-primary mt-2">Search</button>
+            </form>
+
+            {% if hotels %}
+                <h5 class="mt-4">Hotels near "{{ location }}"</h5>
+                <ul class="list-group mt-3">
+                    {% for h in hotels %}
+                        <li class="list-group-item">
+                            <strong>{{ h.name }}</strong> <br>
+                            <a href="{{ h.map_url }}" target="_blank">
+                                <small class="text-muted">📍 View on Google Maps</small>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% elif location %}
+                <p class="text-muted mt-3">No hotels found for that location.</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <div class="card shadow">
+        <div class="card-header bg-success text-white">
+            <h3 class="mb-0">
+                <i class="fas {{ type_details.icon }} me-2"></i>
+                {{ type_details.title }}
+            </h3>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle me-2"></i>
+                Your booking has been confirmed! A confirmation email has been sent to your registered email address.
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <h5 class="mb-3">Booking Details</h5>
+                    {% if booking.booking_type in ['flight', 'bus', 'train'] %}
+                        <p><strong>{{ type_details.from_label }}:</strong> {{ details.origin }}</p>
+                        <p><strong>{{ type_details.to_label }}:</strong> {{ details.destination }}</p>
+                        <p><strong>Departure Date:</strong> {{ details.departure_date }}</p>
+                        {% if details.get('return_date') %}
+                            <p><strong>Return Date:</strong> {{ details.return_date }}</p>
+                        {% endif %}
+                        <p><strong>Passengers:</strong> {{ details.passengers }}</p>
+                    {% elif booking.booking_type == 'car' %}
+                        <p><strong>{{ type_details.from_label }}:</strong> {{ details.pickup_location }}</p>
+                        <p><strong>{{ type_details.to_label }}:</strong> {{ details.drop_location }}</p>
+                        <p><strong>Pickup Date:</strong> {{ details.pickup_date }}</p>
+                        <p><strong>Return Date:</strong> {{ details.return_date }}</p>
+                        <p><strong>Car Type:</strong> {{ details.car_type }}</p>
+                    {% else %} {# hotel #}
+                        <p><strong>{{ type_details.location_label }}:</strong> {{ details.city }}</p>
+                        <p><strong>Hotel:</strong> {{ details.hotel_name }}</p>
+                        <p><strong>Room Type:</strong> {{ details.room_type }}</p>
+                        <p><strong>Check-in:</strong> {{ details.check_in }}</p>
+                        <p><strong>Check-out:</strong> {{ details.check_out }}</p>
+                        <p><strong>Guests:</strong> {{ details.guests }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h5 class="card-title">Payment Summary</h5>
+                            <hr>
+                            <div class="d-flex justify-content-between">
+                                <h6 class="mb-0">Total Amount:</h6>
+                                <h5 class="text-success mb-0">{{ details.total_price }}</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 text-center">
+                <a href="{{ url_for('home') }}" class="btn btn-primary me-2">
+                    <i class="fas fa-home me-1"></i> Back to Home
+                </a>
+                <a href="#" class="btn btn-outline-secondary">
+                    <i class="fas fa-print me-1"></i> Print Confirmation
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

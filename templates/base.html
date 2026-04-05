@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Ghoori.com{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3c276e;
+            --primary-light: #C4B5FD;
+            --primary-dark: #7C3AED;
+            --bg-light: #F3F4F6;
+            --bg-dark: #1F2937;
+            --text-light: #374151;
+            --text-dark: #F9FAFB;
+        }
+        
+        body {
+            font-family: 'Quicksand', sans-serif;
+            padding-top: 70px;
+            transition: background-color 0.3s, color 0.3s;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        body.light-mode {
+            background-color: var(--bg-light);
+            color: var(--text-light);
+        }
+        
+        body.dark-mode {
+            background-color: var(--bg-dark);
+            color: var(--text-dark);
+        }
+        
+        .navbar {
+            background-color: var(--primary-color);
+            padding: 15px 0;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+        
+        .navbar-brand {
+            color: white !important;
+            font-family: 'Righteous', cursive;
+            font-weight: bold;
+            font-size: 2rem;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 0px var(--primary-dark);
+        }
+        
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            margin: 0 5px;
+        }
+        
+        .nav-link:hover {
+            color: white !important;
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(139, 92, 246, 0.1);
+            margin-bottom: 2rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            background-color: var(--primary-light);
+            border-bottom: 3px solid var(--primary-color);
+            font-weight: 600;
+            padding: 1.5rem;
+        }
+        
+        .dark-mode .card-header {
+            background-color: var(--primary-dark);
+            color: white;
+        }
+        
+        .dark-mode .card {
+            background-color: #374151;
+            border-color: #4B5563;
+        }
+        
+        .dark-mode .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+        }
+        
+        .dark-mode .nav-link:hover {
+            color: white !important;
+        }
+        
+        .dark-mode .navbar-brand {
+            color: white !important;
+        }
+        
+        .dark-mode .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .dark-mode .btn-primary:hover {
+            background-color: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+        
+        .dark-mode .btn-secondary {
+            background-color: #64748B;
+            border-color: #64748B;
+        }
+        
+        .dark-mode .btn-danger {
+            background-color: #EF4444;
+            border-color: #EF4444;
+        }
+        
+        .dark-mode .text-muted {
+            color: #94A3B8;
+        }
+        
+        .dark-mode .alert-info {
+            background-color: #374151;
+            border-color: #4B5563;
+            color: white;
+        }
+        .checklist-item {
+            cursor: pointer;
+        }
+        .checklist-item.completed {
+            text-decoration: line-through;
+            color: gray;
+        }
+
+        /* Chatbot Styles */
+        .chatbot-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 350px;
+            max-height: 500px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            z-index: 1100;
+            transform: translateY(20px);
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .chatbot-container.active {
+            transform: translateY(0);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .chatbot-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 15px;
+            font-weight: 600;
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .chatbot-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            max-height: 350px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border-radius: 18px;
+            max-width: 80%;
+            word-wrap: break-word;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .user-message {
+            background-color: var(--primary-light);
+            color: var(--text-light);
+            margin-left: auto;
+            border-bottom-right-radius: 5px;
+        }
+
+        .bot-message {
+            background-color: #f1f1f1;
+            color: var(--text-light);
+            margin-right: auto;
+            border-bottom-left-radius: 5px;
+        }
+
+        .chatbot-input-container {
+            display: flex;
+            border-top: 1px solid #ddd;
+            padding: 10px;
+        }
+
+        .chatbot-input {
+            flex: 1;
+            border: none;
+            padding: 12px 15px;
+            border-radius: 25px;
+            outline: none;
+        }
+
+        .chatbot-toggle {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            z-index: 1200;
+            transition: all 0.3s;
+        }
+
+        .dark-mode .chatbot-container {
+            background: #374151;
+            color: white;
+        }
+
+        .dark-mode .chatbot-input {
+            background-color: #4B5563;
+            color: white;
+        }
+
+        .dark-mode .bot-message {
+            background-color: #4B5563;
+            color: white;
+        }
+    </style>
+</head>
+<body class="{{ 'dark-mode' if current_user.dark_mode else 'light-mode' }}">
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('home') }}">Ghoori.com</a>
+            <div class="d-flex align-items-center">
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    {% if current_user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="communityDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Community
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('communities') }}">Find Communities</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="javascript:void(0);" id="navbarChatbot">
+                            <i class="fas fa-robot me-1"></i>Chatbot
+                        </a>
+                    </li>
+                    
+                    {% endif %}
+                </ul>
+                <ul class="navbar-nav">
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('profile') }}">
+                                <i class="fas fa-user-circle"></i> Profile
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('restaurants') }}">
+                                <i class="  fas fa-utensils me-1"></i> Restaurants
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('hotels') }}">
+                                <i class="fas fa-hotel"></i> Hotels
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('expenses') }}">
+                                <i class="fas fa-wallet"></i> Expenses
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="emergencyDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-ambulance"></i> Emergency
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('hospitals') }}">
+                                        <i class="fas fa-hospital me-2"></i>Hospitals
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('police') }}">
+                                        <i class="fas fa-shield-alt me-2"></i>Police Stations
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('logout') }}">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('login') }}">Login</a>
+                        </li>
+                        
+
+                    {% endif %}
+                    <li class="nav-item">
+                        <button id="themeToggle" class="btn btn-link nav-link">
+                            <i class="fas {{ 'fa-sun' if current_user.dark_mode else 'fa-moon' }} me-1"></i>Theme
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Review Form Modal -->
+    <div class="modal fade" id="reviewFormModal" tabindex="-1" aria-labelledby="reviewFormModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="reviewFormModalLabel">Write a Review</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="reviewForm">
+                        <div class="mb-3">
+                            <label for="rating" class="form-label">Rating</label>
+                            <select class="form-select" id="rating" required>
+                                <option value="">Select rating</option>
+                                <option value="1">1 star</option>
+                                <option value="2">2 stars</option>
+                                <option value="3">3 stars</option>
+                                <option value="4">4 stars</option>
+                                <option value="5">5 stars</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="comment" class="form-label">Comment</label>
+                            <textarea class="form-control" id="comment" rows="4" placeholder="Share your experience..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="submitReview()">Submit Review</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="container mt-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <main class="flex-grow-1">
+            <div class="container mt-4">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+
+        <footer class="mt-auto py-3 text-center">
+            <div class="container">
+                <p class="mb-0">&copy; 2025 Ghoori.com. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://kit.fontawesome.com/your-code.js" crossorigin="anonymous"></script>
+
+    <!-- Chatbot Elements -->
+    <button class="chatbot-toggle" id="chatbotToggle">
+        <i class="fas fa-comment-dots"></i>
+    </button>
+
+    <div class="chatbot-container" id="chatbotContainer">
+        <div class="chatbot-header">
+            <span>Ghoori Assistant</span>
+            <button class="chatbot-close" id="chatbotClose">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="chatbot-messages" id="chatbotMessages">
+            <div class="message bot-message">
+                <strong>Ghoori:</strong> Hello {{ current_user.name }}! How can I assist you with your travel plans today?
+                <span class="timestamp">{{ now.strftime('%H:%M') }}</span>
+            </div>
+        </div>
+        <div class="chatbot-input-container">
+            <input type="text" class="chatbot-input" id="chatbotInput" placeholder="Type your message..." autocomplete="off">
+            <button class="chatbot-send" id="chatbotSend">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Chatbot Functionality
+        const chatbotToggle = document.getElementById('chatbotToggle');
+        const navbarChatbot = document.getElementById('navbarChatbot');
+        const chatbotContainer = document.getElementById('chatbotContainer');
+        const chatbotClose = document.getElementById('chatbotClose');
+        const chatbotSend = document.getElementById('chatbotSend');
+        const chatbotInput = document.getElementById('chatbotInput');
+        const chatbotMessages = document.getElementById('chatbotMessages');
+
+        // Auto-focus input when chatbot opens
+        function openChatbot() {
+            chatbotContainer.classList.add('active');
+            loadChatHistory();
+            setTimeout(() => {
+                chatbotInput.focus();
+            }, 300);
+        }
+
+        // Toggle from floating button
+        chatbotToggle.addEventListener('click', openChatbot);
+
+        // Toggle from navbar link
+        if (navbarChatbot) {
+            navbarChatbot.addEventListener('click', openChatbot);
+        }
+
+        // Close chatbot
+        chatbotClose.addEventListener('click', () => {
+            chatbotContainer.classList.remove('active');
+        });
+
+        // Load chat history
+        async function loadChatHistory() {
+            try {
+                const response = await fetch('/chat_messages');
+                const messages = await response.json();
+                
+                chatbotMessages.innerHTML = '';
+                messages.forEach(msg => {
+                    const div = document.createElement('div');
+                    div.className = `message ${msg.is_user ? 'user-message' : 'bot-message'}`;
+                    div.innerHTML = `
+                        <strong>${msg.sender}:</strong> ${msg.message}
+                        <span class="timestamp">${msg.timestamp}</span>
+                    `;
+                    chatbotMessages.appendChild(div);
+                });
+                
+                // Add welcome message if no history
+                if (messages.length === 0) {
+                    const now = new Date();
+                    const hours = now.getHours().toString().padStart(2, '0');
+                    const minutes = now.getMinutes().toString().padStart(2, '0');
+                    
+                    const welcomeDiv = document.createElement('div');
+                    welcomeDiv.className = 'message bot-message';
+                    welcomeDiv.innerHTML = `
+                        <strong>Ghoori:</strong> Hello {{ current_user.name }}! How can I assist you with your travel plans today?
+                        <span class="timestamp">${hours}:${minutes}</span>
+                    `;
+                    chatbotMessages.appendChild(welcomeDiv);
+                }
+                
+                chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+            } catch (error) {
+                console.error('Error loading chat history:', error);
+            }
+        }
+
+        // Enhanced sendMessage function
+        async function sendMessage() {
+            const userMessage = chatbotInput.value.trim();
+            if (!userMessage) return;
+
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+
+            // Add user message
+            const userDiv = document.createElement('div');
+            userDiv.className = 'message user-message';
+            userDiv.innerHTML = `
+                <strong>You:</strong> ${userMessage}
+                <span class="timestamp">${hours}:${minutes}</span>
+            `;
+            chatbotMessages.appendChild(userDiv);
+            
+            // Clear input and scroll
+            chatbotInput.value = '';
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+
+            // Show typing indicator
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message bot-message typing';
+            typingDiv.innerHTML = '<strong>Ghoori:</strong> <em>Typing...</em>';
+            chatbotMessages.appendChild(typingDiv);
+            chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+
+            try {
+                const response = await fetch('/chatbot', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `message=${encodeURIComponent(userMessage)}`
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to get response');
+                }
+
+                const data = await response.json();
+                typingDiv.remove();
+
+                const botDiv = document.createElement('div');
+                botDiv.className = 'message bot-message';
+                botDiv.innerHTML = `
+                    <strong>Ghoori:</strong> ${data.response}
+                    <span class="timestamp">${hours}:${minutes}</span>
+                `;
+                chatbotMessages.appendChild(botDiv);
+                chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+
+            } catch (error) {
+                console.error('Chatbot error:', error);
+                typingDiv.remove();
+
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'message bot-message error';
+                errorDiv.innerHTML = `
+                    <strong>Ghoori:</strong> Sorry, I'm having trouble responding.
+                    <span class="timestamp">${hours}:${minutes}</span>
+                `;
+                chatbotMessages.appendChild(errorDiv);
+                chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+            }
+        }
+
+        // Event listeners
+        chatbotSend.addEventListener('click', sendMessage);
+        chatbotInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        // Auto-focus input field when page loads if chatbot is active
+        document.addEventListener('DOMContentLoaded', function() {
+            if (chatbotContainer.classList.contains('active')) {
+                chatbotInput.focus();
+            }
+        });
+    </script>
+
+    <script>
+        document.getElementById('themeToggle').addEventListener('click', function() {
+            fetch('/toggle-theme', {method: 'POST'})
+                .then(response => response.json())
+                .then(data => {
+                    document.body.classList.toggle('dark-mode', data.dark_mode);
+                    document.body.classList.toggle('light-mode', !data.dark_mode);
+                    this.querySelector('i').classList.toggle('fa-sun', data.dark_mode);
+                    this.querySelector('i').classList.toggle('fa-moon', !data.dark_mode);
+                });
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

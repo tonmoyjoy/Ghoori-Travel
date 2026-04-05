@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% block title %}Booking Confirmation - Ghoori.com{% endblock %}
+
+{% block content %}
+<style>
+    .confirmation-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background-color: {% if current_user.dark_mode %}#2c2c2c{% else %}#f8f9fa{% endif %};
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .confirmation-section {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background-color: {% if current_user.dark_mode %}#3a3a3a{% else %}#ffffff{% endif %};
+        border-radius: 8px;
+    }
+
+    h2, h3 {
+        color: {% if current_user.dark_mode %}#ffffff{% else %}#343a40{% endif %};
+        margin-bottom: 1.5rem;
+    }
+
+    p {
+        color: {% if current_user.dark_mode %}#cccccc{% else %}#495057{% endif %};
+        margin: 0.5rem 0;
+    }
+
+    .btn-primary {
+        background-color: #8B5CF6;
+        border-color: #7C3AED;
+        padding: 0.75rem 1.5rem;
+    }
+
+    .btn-secondary {
+        background-color: #64748b;
+        border-color: #475569;
+    }
+</style>
+
+<div class="confirmation-container">
+    <h2 class="text-center">🎉 Booking Confirmation</h2>
+    
+    <!-- General Booking Info -->
+    <div class="confirmation-section">
+        <h3>Booking Summary</h3>
+        <p>Booking ID: #{{ booking_id }}</p>
+        <p>Booking Date: {{ details.booking_date if details.booking_date else datetime.now().strftime('%Y-%m-%d %H:%M') }}</p>
+        <p>Status: Confirmed ✅</p>
+    </div>
+
+    <!-- Flight Booking Details -->
+    {% if booking_type == 'flight' %}
+    <div class="confirmation-section">
+        <h3>✈️ Flight Details</h3>
+        <p>Flight Number: {{ details.flight_number }}</p>
+        <p>From: {{ details.departure_airport }} ({{ details.departure_code }})</p>
+        <p>To: {{ details.arrival_airport }} ({{ details.arrival_code }})</p>
+        <p>Departure: {{ details.departure_date }} at {{ details.departure_time }}</p>
+        <p>Passengers: {{ details.passengers }}</p>
+        <p>Seat Class: {{ details.seat_class }}</p>
+        <p>Total Price: ${{ details.total_price }}</p>
+    </div>
+
+    <!-- Hotel Booking Details -->
+    {% elif booking_type == 'hotel' %}
+    <div class="confirmation-section">
+        <h3>🏨 Hotel Details</h3>
+        <p>Hotel Name: {{ details.hotel_name }}</p>
+        <p>Location: {{ details.location }}</p>
+        <p>Check-in: {{ details.check_in_date }}</p>
+        <p>Check-out: {{ details.check_out_date }}</p>
+        <p>Guests: {{ details.guests }}</p>
+        <p>Room Type: {{ details.room_type }}</p>
+        <p>Total Cost: ${{ details.total_cost }}</p>
+    </div>
+
+    <!-- Train Booking Details -->
+    {% elif booking_type == 'train' %}
+    <div class="confirmation-section">
+        <h3>🚆 Train Details</h3>
+        <p>Train Number: {{ details.train_number }}</p>
+        <p>From: {{ details.departure_station }}</p>
+        <p>To: {{ details.arrival_station }}</p>
+        <p>Departure: {{ details.departure_datetime }}</p>
+        <p>Class: {{ details.train_class }}</p>
+        <p>Passengers: {{ details.passengers }}</p>
+        <p>Total Fare: ${{ details.total_fare }}</p>
+    </div>
+
+    <!-- Bus Booking Details -->
+    {% elif booking_type == 'bus' %}
+    <div class="confirmation-section">
+        <h3>🚌 Bus Details</h3>
+        <p>From: {{ details.departure_city }}</p>
+        <p>To: {{ details.destination_city }}</p>
+        <p>Departure Date: {{ details.departure_date }}</p>
+        <p>Passengers: {{ details.passengers }}</p>
+        <p>Seat Numbers: {{ details.seat_numbers }}</p>
+        <p>Bus Operator: {{ details.bus_operator }}</p>
+        <p>Total Fare: ${{ details.total_fare }}</p>
+    </div>
+
+    <!-- Car Rental Details -->
+    {% elif booking_type == 'car' %}
+    <div class="confirmation-section">
+        <h3>🚗 Car Rental Details</h3>
+        <p>Pickup Location: {{ details.pickup_location }}</p>
+        <p>Drop-off Location: {{ details.dropoff_location }}</p>
+        <p>Pickup Date: {{ details.pickup_date }}</p>
+        <p>Return Date: {{ details.return_date }}</p>
+        <p>Car Type: {{ details.car_type }}</p>
+        <p>Daily Rate: ${{ details.daily_rate }}</p>
+        <p>Total Cost: ${{ details.total_cost }}</p>
+    </div>
+    {% endif %}
+
+    <!-- Contact Information -->
+    <div class="confirmation-section">
+        <h3>📧 Contact Information</h3>
+        <p>Name: {{ current_user.name }}</p>
+        <p>Email: {{ current_user.email }}</p>
+        <p>Contact Phone: {{ current_user.phone if current_user.phone else 'Not provided' }}</p>
+    </div>
+
+    <div class="confirmation-section text-center">
+        <p class="mb-4">Thank you for booking with us! 🎉</p>
+        <div class="d-grid gap-3 d-md-block">
+            <a href="{{ url_for('my_bookings') }}" class="btn btn-primary">
+                <i class="fas fa-list-alt me-2"></i>View All Bookings
+            </a>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+                <i class="fas fa-home me-2"></i>Return to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

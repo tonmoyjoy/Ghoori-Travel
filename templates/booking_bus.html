@@ -1,0 +1,82 @@
+<!-- templates/booking_bus.html -->
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-warning text-white">
+            <h3 class="mb-0"><i class="fas fa-bus"></i> Bus Ticket Booking</h3>
+        </div>
+        <div class="card-body">
+            <form method="POST" novalidate>
+                {{ form.hidden_tag() }}
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.origin.label(class="form-label") }}
+                            {{ form.origin(class="form-control") }}
+                            {% for error in form.origin.errors %}
+                                <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.destination.label(class="form-label") }}
+                            {{ form.destination(class="form-control") }}
+                            {% for error in form.destination.errors %}
+                                <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.departure_date.label(class="form-label") }}
+                            {{ form.departure_date(class="form-control", type="date") }}
+                            {% for error in form.departure_date.errors %}
+                                <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.bus_type.label(class="form-label") }}
+                            {{ form.bus_type(class="form-control") }}
+                            {% for error in form.bus_type.errors %}
+                                <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.passengers.label(class="form-label") }}
+                            {{ form.passengers(class="form-control", min="1") }}
+                            {% for error in form.passengers.errors %}
+                                <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    {{ form.submit(class="btn btn-warning btn-lg") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set minimum date to today
+        var today = new Date().toISOString().split('T')[0];
+        document.querySelector('#departure_date').setAttribute('min', today);
+    });
+</script>
+{% endblock %}

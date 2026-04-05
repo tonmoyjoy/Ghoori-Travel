@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Packing Checklist</h1>
+    <p>Click on an item to mark it as completed.</p>
+    <div class="accordion" id="checklistAccordion">
+        {% for category, items in checklist.items() %}
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="heading-{{ category }}">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ category }}" aria-expanded="true" aria-controls="collapse-{{ category }}">
+                    {{ category }}
+                </button>
+            </h2>
+            <div id="collapse-{{ category }}" class="accordion-collapse collapse show" aria-labelledby="heading-{{ category }}" data-bs-parent="#checklistAccordion">
+                <div class="accordion-body">
+                    <ul class="list-group">
+                        {% for item in items %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center checklist-item">
+                            <span>{{ item }}</span>
+                            <button class="btn btn-sm btn-outline-success mark-complete">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const checklistItems = document.querySelectorAll('.checklist-item');
+        const savedState = JSON.parse(localStorage.getItem('checklistState') || '{}');
+
+        // Restore saved state
+        checklistItems.forEach(item => {
+            const itemText = item.querySelector('span').textContent;
+            const button = item.querySelector('.mark-complete');
+            
+            if (savedState[itemText]) {
+                button.classList.add('btn-success');
+                button.classList.remove('btn-outline-success');
+            }
+        });
+
+        // Handle clicks and save state
+        checklistItems.forEach(item => {
+            item.addEventListener('click', function () {
+                const button = this.querySelector('.mark-complete');
+                const itemText = this.querySelector('span').textContent;
+                
+                button.classList.toggle('btn-success');
+                button.classList.toggle('btn-outline-success');
+
+                // Save state to localStorage
+                const newState = savedState;
+                newState[itemText] = button.classList.contains('btn-success');
+                localStorage.setItem('checklistState', JSON.stringify(newState));
+            });
+        });
+    });
+</script>
+{% endblock %}

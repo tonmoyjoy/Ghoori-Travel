@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Book Train</h2>
+    <form method="POST">
+        {{ form.csrf_token }}
+        <div class="form-group">
+            {{ form.origin.label }}
+            {{ form.origin(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.destination.label }}
+            {{ form.destination(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.departure_date.label }}
+            {{ form.departure_date(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.train_name.label }}
+            {{ form.train_name(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.class_type.label }}
+            {{ form.class_type(class="form-control") }}
+        </div>
+        <div class="form-group">
+            {{ form.passengers.label }}
+            {{ form.passengers(class="form-control") }}
+        </div>
+        {{ form.submit(class="btn btn-primary mt-3") }}
+    </form>
+</div>
+{% endblock %}

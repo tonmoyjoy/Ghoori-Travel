@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">Communities</h1>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <h3 class="mb-4">Available Communities</h3>
+                    {% for community in communities %}
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h3 class="card-title">{{ community.name }}</h3>
+                            <p class="card-text">{{ community.description }}</p>
+                            {% if current_user.is_authenticated %}
+                                {% if user_memberships and community.id in user_memberships %}
+                                    <a href="{{ url_for('community_feed', community_id=community.id) }}" class="btn btn-primary">Go to Community</a>
+                                {% else %}
+                                    <a href="{{ url_for('bracu_community') if community.id == 1 else '#' }}" class="btn btn-primary">Join Community</a>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="col-md-6">
+                    <h3 class="mb-4">Your Communities</h3>
+                    {% if current_user.is_authenticated %}
+                        {% for community in communities %}
+                            {% if user_memberships and community.id in user_memberships %}
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <h3 class="card-title">{{ community.name }}</h3>
+                                    <p class="card-text">{{ community.description }}</p>
+                                    <a href="{{ url_for('community_feed', community_id=community.id) }}" class="btn btn-primary">Go to Community</a>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <p class="card-text">Please log in to view your communities.</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

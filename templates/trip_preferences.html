@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trip Preferences - Ghoori.com</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        body.dark-mode {
+            background-color: #333;
+            color: #f8f9fa;
+        }
+        .container {
+            max-width: 800px;
+            margin-top: 2rem;
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: white;
+            transition: background-color 0.3s;
+        }
+        .dark-mode .card {
+            background-color: #444;
+            color: #f8f9fa;
+        }
+        .card-header {
+            background-color: #8a2be2;
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            padding: 1.5rem;
+        }
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 1px solid #ced4da;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        .dark-mode .form-control, .dark-mode .form-select {
+            background-color: #555;
+            border-color: #666;
+            color: #f8f9fa;
+        }
+        .btn-primary {
+            background-color: #8a2be2;
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+        .btn-primary:hover {
+            background-color: #7a1dd2;
+            transform: translateY(-2px);
+        }
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .alert {
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+        .navbar {
+            background-color: #8a2be2;
+            padding: 1rem 0;
+        }
+        .navbar-brand {
+            color: white;
+            font-weight: 600;
+            font-size: 1.5rem;
+        }
+        .navbar-nav .nav-link {
+            color: rgba(255, 255, 255, 0.9);
+        }
+        .navbar-nav .nav-link:hover {
+            color: white;
+        }
+    </style>
+</head>
+<body class="{{ 'dark-mode' if current_user.dark_mode else 'light-mode' }}">
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="{{ url_for('dashboard') }}">Ghoori.com</a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
+                <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+                <a class="nav-link" href="#" onclick="toggleTheme()">
+                    <i class="fas {{ 'fa-sun' if current_user.dark_mode else 'fa-moon' }}"></i>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container" style="margin-top: 100px;">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0"><i class="fas fa-cog me-2"></i>Trip Preferences</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('trip_preferences') }}">
+                    <div class="mb-3">
+                        <label for="travel_type" class="form-label">Travel Type</label>
+                        <select class="form-select" id="travel_type" name="travel_type" required>
+                            <option value="" disabled {% if not preferences %}selected{% endif %}>Choose your travel style</option>
+                            <option value="adventure" {% if preferences and preferences.travel_type == 'adventure' %}selected{% endif %}>Adventure</option>
+                            <option value="leisure" {% if preferences and preferences.travel_type == 'leisure' %}selected{% endif %}>Leisure</option>
+                            <option value="cultural" {% if preferences and preferences.travel_type == 'cultural' %}selected{% endif %}>Cultural</option>
+                            <option value="business" {% if preferences and preferences.travel_type == 'business' %}selected{% endif %}>Business</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="budget_range" class="form-label">Budget Range</label>
+                        <select class="form-select" id="budget_range" name="budget_range" required>
+                            <option value="" disabled {% if not preferences %}selected{% endif %}>Select your budget range</option>
+                            <option value="budget" {% if preferences and preferences.budget_range == 'budget' %}selected{% endif %}>Budget (৳5,000 - ৳15,000)</option>
+                            <option value="mid_range" {% if preferences and preferences.budget_range == 'mid_range' %}selected{% endif %}>Mid-Range (৳15,000 - ৳30,000)</option>
+                            <option value="luxury" {% if preferences and preferences.budget_range == 'luxury' %}selected{% endif %}>Luxury (৳30,000 - ৳50,000)</option>
+                            <option value="ultra_luxury" {% if preferences and preferences.budget_range == 'ultra_luxury' %}selected{% endif %}>Ultra Luxury (৳50,000+)</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="preferred_activities" class="form-label">Preferred Activities</label>
+                        <select class="form-select" id="preferred_activities" name="preferred_activities" required>
+                            <option value="" disabled {% if not preferences %}selected{% endif %}>Choose your favorite activities</option>
+                            <option value="hiking" {% if preferences and preferences.preferred_activities == 'hiking' %}selected{% endif %}>Hiking & Trekking</option>
+                            <option value="sightseeing" {% if preferences and preferences.preferred_activities == 'sightseeing' %}selected{% endif %}>Sightseeing & Photography</option>
+                            <option value="beach" {% if preferences and preferences.preferred_activities == 'beach' %}selected{% endif %}>Beach & Water Activities</option>
+                            <option value="food" {% if preferences and preferences.preferred_activities == 'food' %}selected{% endif %}>Food & Culinary Tours</option>
+                            <option value="shopping" {% if preferences and preferences.preferred_activities == 'shopping' %}selected{% endif %}>Shopping & Markets</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="accommodation_type" class="form-label">Accommodation Type</label>
+                        <select class="form-select" id="accommodation_type" name="accommodation_type" required>
+                            <option value="" disabled {% if not preferences %}selected{% endif %}>Select preferred accommodation</option>
+                            <option value="hotel" {% if preferences and preferences.accommodation_type == 'hotel' %}selected{% endif %}>Hotels</option>
+                            <option value="resort" {% if preferences and preferences.accommodation_type == 'resort' %}selected{% endif %}>Resorts</option>
+                            <option value="hostel" {% if preferences and preferences.accommodation_type == 'hostel' %}selected{% endif %}>Hostels</option>
+                            <option value="homestay" {% if preferences and preferences.accommodation_type == 'homestay' %}selected{% endif %}>Homestays</option>
+                            <option value="camping" {% if preferences and preferences.accommodation_type == 'camping' %}selected{% endif %}>Camping</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="preferred_destinations" class="form-label">Preferred Destinations (Optional)</label>
+                        <textarea class="form-control" id="preferred_destinations" name="preferred_destinations" rows="3" placeholder="Enter your preferred destinations, separated by commas">{{ preferences.preferred_destinations if preferences else '' }}</textarea>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>{{ 'Update' if preferences else 'Save' }} Preferences
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">Trip Preferences</h3>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        {{ form.budget_range.label(class="form-label") }}
+                        <div class="input-group">
+                            {{ form.budget_range(class="form-select") }}
+                        </div>
+                        <small class="text-muted">All prices are in Bangladeshi Taka (৳)</small>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.preferred_destinations.label(class="form-label") }}
+                        {{ form.preferred_destinations(class="form-control") }}
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Save Preferences</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleTheme() {
+            fetch('/toggle-theme', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.body.classList.toggle('dark-mode', data.dark_mode);
+                document.body.classList.toggle('light-mode', !data.dark_mode);
+                const icon = document.querySelector('.nav-link i');
+                icon.classList.toggle('fa-sun', data.dark_mode);
+                icon.classList.toggle('fa-moon', !data.dark_mode);
+            });
+        }
+    </script>
+</body>
+</html>

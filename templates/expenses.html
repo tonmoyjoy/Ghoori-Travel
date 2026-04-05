@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+
+{% block title %}Expense Tracker - Ghoori.com{% endblock %}
+
+{% block style %}
+:root {
+    --primary-color: #8B5CF6;
+    --primary-light: #C4B5FD;
+    --bg-light: #F3F4F6;
+    --bg-dark: #1F2937;
+    --text-light: #459324;
+    --text-dark: #F9FAFB;
+    --primary-dark: #6c5ce7;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding-top: 80px;
+    background-color: var(--bg-light);
+    color: var(--text-light);
+}
+
+.dark-mode {
+    background-color: var(--bg-dark) !important;
+    color: var(--text-dark);
+}
+
+.expense-card {
+    background: rgb(234, 244, 232);
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(12, 215, 9, 0.1);
+    margin-bottom: 1rem;
+    padding: 1.5rem;
+    transition: transform 0.3s;
+    border-left: 4px solid var(--primary-color);
+}
+
+.dark-mode .expense-card {
+    background: #374151;
+    border-color: #52634b;
+}
+
+.auto-badge {
+    background: var(--primary-color);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+}
+
+.total-card {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.expense-form {
+    background: white;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.dark-mode .expense-form {
+    background: #374151;
+}
+
+.expense-list {
+    max-height: 600px;
+    overflow-y: auto;
+}
+
+.btn-outline-danger {
+    border-color: #dc3545;
+    color: #dc3545;
+}
+
+.btn-outline-danger:hover {
+    background-color: #dc3545;
+    color: white;
+}
+
+.form-control:focus {
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 0.25rem rgba(139, 92, 246, 0.25);
+}
+
+.nav-link.active {
+    background-color: var(--primary-light) !important;
+}
+
+.text-muted {
+    color: #6B7280 !important;
+}
+
+.dark-mode .text-muted {
+    color: #9CA3AF !important;
+}
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <!-- Add Expense Form -->
+        <div class="col-lg-4 mb-4">
+            <div class="card expense-form">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Add Expense</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            {{ form.category.label(class="form-label") }}
+                            {{ form.category(class="form-control") }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.description.label(class="form-label") }}
+                            {{ form.description(class="form-control") }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.amount.label(class="form-label") }}
+                            <div class="input-group">
+                                <span class="input-group-text">৳</span>
+                                {{ form.amount(class="form-control", placeholder="0.00") }}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.date.label(class="form-label") }}
+                            {{ form.date(class="form-control") }}
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-save me-2"></i>Save Expense
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expenses List and Total -->
+        <div class="col-lg-8">
+            <div class="total-card shadow">
+                <h4 class="mb-0">
+                    <i class="fas fa-wallet me-2"></i>
+                    Total Expenses: ৳{{ "%.2f"|format(total) }}
+                </h4>
+            </div>
+
+            <div class="expense-list">
+                {% for expense in expenses %}
+                <div class="expense-card shadow">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="flex-grow-1">
+                            <h5 class="mb-1">{{ expense.category }}
+                                {% if expense.is_automatic %}
+                                <span class="auto-badge">Auto</span>
+                                {% endif %}
+                            </h5>
+                            <p class="mb-1 text-muted">{{ expense.description }}</p>
+                            <small class="text-muted">
+                                <i class="fas fa-calendar-alt me-1"></i>{{ expense.date.strftime('%d %b %Y') }}
+                            </small>
+                        </div>
+                        <div class="text-end ms-3">
+                            <h4 class="mb-0 text-danger">
+                                ৳{{ "%.2f"|format(expense.amount) }}
+                            </h4>
+                            <form method="POST" action="{{ url_for('delete_expense', expense_id=expense.id) }}" class="mt-2">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash-alt me-1"></i>Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

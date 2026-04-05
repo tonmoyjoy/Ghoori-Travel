@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0">BRACU Community Verification</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="student_id" class="form-label">Student ID</label>
+                            <input type="text" class="form-control" id="student_id" name="student_id" required minlength="8" maxlength="8">
+                        </div>
+                        <div class="mb-3">
+                            <label for="gsuite" class="form-label">GSuite Email</label>
+                            <input type="email" class="form-control" id="gsuite" name="gsuite" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="semester" class="form-label">Semester</label>
+                            <select class="form-select" id="semester" name="semester" required>
+                                <option value="Spring22">Spring 2022</option>
+                                <option value="Summer22">Summer 2022</option>
+                                <option value="Fall22">Fall 2022</option>
+                                <option value="Spring23">Spring 2023</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="mobile_number" class="form-label">Mobile Number</label>
+                            <input type="tel" class="form-control" id="mobile_number" name="mobile_number" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Community Password</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Verify and Join</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

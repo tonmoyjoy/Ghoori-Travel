@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Users {{ user.name }} is Following</h4>
+                    <a href="{{ url_for('view_user_profile', user_id=user.id) }}" class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-arrow-left me-1"></i> Back to Profile
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if following %}
+                        <ul class="list-group">
+                            {% for followed_user in following %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    {% if followed_user.profile_photo %}
+                                    <img src="{{ url_for('uploaded_file', filename=followed_user.profile_photo) }}" 
+                                         class="rounded-circle me-3" 
+                                         alt="{{ followed_user.name }}" 
+                                         style="width: 50px; height: 50px; object-fit: cover;">
+                                    {% else %}
+                                    <div class="rounded-circle bg-secondary d-flex justify-content-center align-items-center me-3" 
+                                         style="width: 50px; height: 50px;">
+                                        <span class="text-white">{{ followed_user.name[0] }}</span>
+                                    </div>
+                                    {% endif %}
+                                    <div>
+                                        <h5 class="mb-0">{{ followed_user.name }}</h5>
+                                        <small class="text-muted">Member since {{ followed_user.created_at.strftime('%B %d, %Y') }}</small>
+                                    </div>
+                                </div>
+                                <div>
+                                    <a href="{{ url_for('view_user_profile', user_id=followed_user.id) }}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-user me-1"></i> View Profile
+                                    </a>
+                                    {% if current_user.id != followed_user.id %}
+                                        {% if current_user.is_following(followed_user) %}
+                                        <button class="btn btn-sm btn-outline-primary follow-btn" data-user-id="{{ followed_user.id }}">
+                                            <i class="fas fa-user-minus"></i> Unfollow
+                                        </button>
+                                        {% else %}
+                                        <button class="btn btn-sm btn-primary follow-btn" data-user-id="{{ followed_user.id }}">
+                                            <i class="fas fa-user-plus"></i> Follow
+                                        </button>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-user-friends fa-4x text-muted mb-3"></i>
+                            <h4 class="text-muted">Not Following Anyone</h4>
+                            <p class="text-muted">{{ user.name }} isn't following anyone yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const followButtons = document.querySelectorAll('.follow-btn');
+        
+        followButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const userId = this.getAttribute('data-user-id');
+                
+                fetch(`/api/follow/${userId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update button appearance
+                        if (data.following) {
+                            this.innerHTML = '<i class="fas fa-user-minus"></i> Unfollow';
+                            this.classList.remove('btn-primary');
+                            this.classList.add('btn-outline-primary');
+                        } else {
+                            this.innerHTML = '<i class="fas fa-user-plus"></i> Follow';
+                            this.classList.remove('btn-outline-primary');
+                            this.classList.add('btn-primary');
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .confirmation-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: #fff;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .confirmation-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .confirmation-header h2 {
+        color: #28a745;
+        margin-bottom: 0.5rem;
+    }
+
+    .confirmation-header .emoji {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .booking-details {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+    }
+
+    .booking-details h3 {
+        color: #333;
+        margin-bottom: 1rem;
+        border-bottom: 2px solid #28a745;
+        padding-bottom: 0.5rem;
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.8rem;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .detail-label {
+        font-weight: 600;
+        color: #495057;
+    }
+
+    .detail-value {
+        color: #212529;
+    }
+
+    .actions {
+        text-align: center;
+        margin-top: 2rem;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 0.8rem 1.5rem;
+        margin: 0 0.5rem;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background: #007bff;
+        color: white;
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background: #0056b3;
+        transform: translateY(-2px);
+    }
+
+    .btn-outline {
+        border: 2px solid #6c757d;
+        color: #6c757d;
+    }
+
+    .btn-outline:hover {
+        background: #6c757d;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .booking-type {
+        display: inline-block;
+        padding: 0.4rem 1rem;
+        border-radius: 20px;
+        font-weight: 500;
+        margin-bottom: 1rem;
+    }
+
+    .type-flight { background: #e3f2fd; color: #0d47a1; }
+    .type-bus { background: #e8f5e9; color: #1b5e20; }
+    .type-train { background: #fff3e0; color: #e65100; }
+    .type-car { background: #fce4ec; color: #880e4f; }
+</style>
+
+<div class="confirmation-container">
+    <div class="confirmation-header">
+        <div class="emoji">
+            {% if booking.booking_type == 'flight' %}✈️
+            {% elif booking.booking_type == 'bus' %}🚌
+            {% elif booking.booking_type == 'train' %}🚆
+            {% else %}🚗{% endif %}
+    </div>
+
+    <div class="booking-details">
+        <div class="detail-item">
+            <div class="label">Booking ID</div>
+            <div class="value">{{ booking.booking_id }}</div>
+        </div>
+        <div class="detail-item">
+            <div class="label">Date</div>
+            <div class="value">{{ booking.formatted_date }}</div>
+        </div>
+        <div class="detail-item">
+            <div class="label">Time</div>
+            <div class="value">{{ booking.formatted_time }}</div>
+        </div>
+        <div class="detail-item">
+            <div class="label">Passengers</div>
+            <div class="value">{{ booking.passengers }} person{% if booking.passengers > 1 %}s{% endif %}</div>
+        </div>
+        <div class="detail-item">
+            <div class="label">From</div>
+            <div class="value">{{ booking.source }}</div>
+        </div>
+        <div class="detail-item">
+            <div class="label">To</div>
+            <div class="value">{{ booking.destination }}</div>
+        </div>
+    </div>
+
+    <div class="price-section">
+        <div class="total-label">Total Amount</div>
+        <div class="total-amount">৳{{ booking.total_amount }}</div>
+    </div>
+
+    <div class="action-buttons">
+        <a href="{{ url_for('download_ticket', booking_id=booking.booking_id) }}" class="btn-action btn-primary">Download Ticket</a>
+        <a href="{{ url_for('dashboard') }}" class="btn-action btn-outline">View All Bookings</a>
+    </div>
+</div>
+{% endblock %}

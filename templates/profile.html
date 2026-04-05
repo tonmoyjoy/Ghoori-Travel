@@ -1,0 +1,880 @@
+{% extends "base.html" %}
+
+{% block styles %}
+<style>
+    .profile-photo-container {
+        position: relative;
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 2px solid var(--primary-color);
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .profile-photo-container:hover {
+        transform: scale(1.05);
+    }
+
+    .profile-photo {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .default-photo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 4rem;
+        color: var(--primary-color);
+    }
+
+    .upload-photo-btn {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(255, 255, 255, 0.9);
+        padding: 10px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .upload-photo-btn:hover {
+        background: rgba(255, 255, 255, 0.95);
+    }
+
+    .upload-photo-btn i {
+        color: var(--primary-color);
+    }
+
+    .photo-upload-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 10px;
+        color: white;
+    }
+
+    .photo-upload-progress {
+        width: 80%;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 2px;
+        overflow: hidden;
+    }
+
+    .progress-bar {
+        width: 0%;
+        height: 100%;
+        background: var(--primary-color);
+        transition: width 0.3s ease;
+    }
+
+    .status-text {
+        font-size: 0.9rem;
+    }
+
+    .badge-level {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .travel-diaries-count {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .merchandise-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .merchandise-info div {
+        text-align: center;
+    }
+
+    .merchandise-info strong {
+        display: block;
+        color: var(--primary-color);
+    }
+
+    .badge {
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 500;
+    }
+
+    .badge-bronze {
+        background-color: #cd7f32;
+        color: white;
+    }
+
+    .badge-silver {
+        background-color: #c0c0c0;
+        color: white;
+    }
+
+    .badge-gold {
+        background-color: #ffd700;
+        color: black;
+    }
+
+    .badge-platinum {
+        background-color: #e5e4e2;
+        color: black;
+    }
+
+    /* Progress bar styles */
+    .progress-container {
+        margin-top: 15px;
+    }
+
+    .progress-label {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+        color: var(--text-color);
+    }
+
+    .progress-text {
+        font-size: 0.9rem;
+    }
+
+    .progress-percent {
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .progress {
+        height: 8px;
+        background-color: #f0f0f0;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .progress .progress-bar {
+        height: 100%;
+        background: linear-gradient(45deg, var(--primary-color), var(--primary-dark));
+        border-radius: 4px;
+        transition: width 0.3s ease;
+    }
+
+    /* Dark mode styles */
+    .dark-mode .card-header {
+        background-color: var(--primary-dark);
+        color: white;
+    }
+
+    .dark-mode .card {
+        background-color: var(--primary-dark);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .dark-mode .card-body {
+        color: white;
+    }
+
+    .dark-mode .badge {
+        background-color: rgba(255, 255, 255, 0.15);
+        color: white;
+    }
+
+    .dark-mode .badge-bronze {
+        background-color: #cd7f32;
+        color: white;
+    }
+
+    .dark-mode .badge-silver {
+        background-color: #c0c0c0;
+        color: white;
+    }
+
+    .dark-mode .badge-gold {
+        background-color: #ffd700;
+        color: black;
+    }
+
+    .dark-mode .badge-platinum {
+        background-color: #e5e4e2;
+        color: black;
+    }
+
+    .dark-mode .progress {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .dark-mode .progress .progress-bar {
+        background: linear-gradient(45deg, var(--primary-color), var(--primary-dark));
+    }
+
+    /* Package card styles */
+    .package-card {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .package-card .card-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .package-card .card-img-top {
+        object-fit: cover;
+    }
+
+    .package-card .card-text {
+        flex: 1;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .package-card .btn {
+        margin-top: auto;
+    }
+
+    /* Badge card styles */
+    .badge-card {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border: none;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .badge-card .card-header {
+        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        color: white;
+        border-bottom: none;
+    }
+
+    .badge-card .card-header h5 {
+        margin: 0;
+        font-weight: 600;
+    }
+
+    .badge-icon {
+        font-size: 4rem;
+        margin: 2rem 0;
+    }
+
+    .badge-info {
+        background: rgba(255, 255, 255, 0.9);
+        padding: 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .badge-info h3 {
+        color: #3498db;
+        margin-bottom: 1rem;
+    }
+
+    .badge-info p {
+        color: #666;
+        margin-bottom: 1.5rem;
+    }
+
+    .dark-mode .badge-card {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    }
+
+    .dark-mode .badge-card .card-header {
+        background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+    }
+
+    .dark-mode .badge-info {
+        background: rgba(52, 73, 94, 0.9);
+    }
+
+    .dark-mode .badge-info h3 {
+        color: #3498db;
+    }
+
+    .dark-mode .badge-info p {
+        color: #95a5a6;
+    }
+
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        line-clamp: 2;
+        overflow: hidden;
+    }
+
+    .profile-header {
+        background-color: var(--primary-dark);
+        color: var(--primary-light);
+        padding: 2rem 0;
+    }
+
+    .profile-stats {
+        background-color: var(--secondary-light);
+        border-radius: 0.5rem;
+        padding: 1rem;
+    }
+
+    .package-card {
+        transition: transform 0.2s;
+    }
+
+    .package-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .package-image {
+        height: 200px;
+        object-fit: cover;
+        width: 100%;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row g-4">
+        <div class="col-12">
+            <!-- User Info Card -->
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <div class="profile-header">
+                        <div class="profile-photo-container">
+                            {% if current_user.profile_photo %}
+                                <img src="{{ url_for('uploaded_file', filename=current_user.profile_photo) }}" alt="Profile Photo" class="profile-photo">
+                            {% else %}
+                                <div class="profile-photo-placeholder">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            {% endif %}
+                            <form id="profile-photo-form" class="profile-photo-upload">
+                                <input type="file" id="profile-photo-input" accept="image/*" style="display: none;">
+                                <label for="profile-photo-input" class="upload-button">
+                                    <i class="fas fa-camera"></i>
+                                </label>
+                            </form>
+                        </div>
+                        <h2>{{ current_user.name }}</h2>
+                        <p class="user-email">{{ current_user.email }}</p>
+                    </div>
+                    <div class="badge-level mt-3">
+                        <i class="fas fa-badge-check me-2"></i>
+                        <span class="badge badge-{{ current_user.badge_level }}">
+                            {{ current_user.badge_level }}
+                        </span>
+                    </div>
+                    <div class="travel-diaries-count mt-2">
+                        <i class="fas fa-plane me-2"></i>
+                        Travel Diaries: {{ current_user.travel_diaries_count }}
+                    </div>
+                    <div class="progress-container mt-3">
+                        <div class="progress-label">
+                            <span class="progress-text">Progress to Next Level</span>
+                            <span class="progress-percent">{{ current_user.progress }}%</span>
+                        </div>
+                        <div class="progress">
+                            <div class="progress-bar" role="progressbar" 
+                                 style="width: {{ current_user.progress }}%" 
+                                 aria-valuenow="{{ current_user.progress }}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="100">
+                            </div>
+                        </div>
+                    </div>
+                    {% if current_user.badge_merchandise %}
+                    <div class="merchandise-info mt-3">
+                        <i class="fas fa-gift me-2"></i>
+                        <div>
+                            <strong>Merchandise Reward:</strong><br>
+                            <span>{{ current_user.badge_merchandise }}</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- User Rewards Section -->
+            <div class="card mb-4 badge-card">
+                <div class="card-header bg-dark text-white">
+                    <h5 class="mb-0">User Rewards</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <div class="d-flex justify-content-center align-items-center mb-3">
+                            {% if current_user.badge_level == 'bronze' %}
+                            <i class="fas fa-medal badge-icon text-warning"></i>
+                            {% elif current_user.badge_level == 'silver' %}
+                            <i class="fas fa-medal badge-icon text-light"></i>
+                            {% elif current_user.badge_level == 'gold' %}
+                            <i class="fas fa-medal badge-icon text-warning"></i>
+                            {% elif current_user.badge_level == 'platinum' %}
+                            <i class="fas fa-medal badge-icon text-primary"></i>
+                            {% else %}
+                            <i class="fas fa-medal badge-icon text-muted"></i>
+                            {% endif %}
+                        </div>
+                        <h4 class="mb-0">{{ current_user.badge_level|title }} User</h4>
+                        <p class="text-muted mb-3">{{ current_user.travel_diaries_count }} Travel Diaries</p>
+                        
+                        <!-- Progress Bar -->
+                        <div class="badge-progress">
+                            <div class="badge-progress-fill" style="width: {{ current_user.progress }}%"></div>
+                        </div>
+                        <small class="text-muted d-block mt-2">{{ current_user.progress }}% to next level</small>
+                    </div>
+
+                    <!-- Rewards Information -->
+                    <div class="mt-4">
+                        <h5 class="mb-3">Your Rewards</h5>
+                        {% if current_user.badge_level != 'bronze' %}
+                        <div class="alert alert-success">
+                            <i class="fas fa-tag me-2"></i>First Trip Discount: {{ current_user.discount }}%
+                        </div>
+                        {% endif %}
+                        {% if current_user.badge_merchandise %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-gift me-2"></i>Merchandise: {{ current_user.badge_merchandise }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Share Buttons -->
+                    <div class="share-buttons">
+                        <button class="btn btn-outline-primary" onclick="shareToFacebook()">
+                            <i class="fab fa-facebook-f me-1"></i>Share Badge
+                        </button>
+                        <button class="btn btn-outline-danger" onclick="shareToInstagram()">
+                            <i class="fab fa-instagram me-1"></i>Share Badge
+                        </button>
+                    </div>
+                </div>
+            </div>
+        
+        <div class="col-12">
+            <!-- User Reviews Section -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">My Reviews</h3>
+                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#reviewsModal">
+                        <i class="fas fa-plus me-1"></i>Add Review
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div id="userReviews">
+                        <div class="text-center py-5" id="noReviewsMessage" style="display: none;">
+                            <i class="fas fa-star fa-4x text-muted mb-3"></i>
+                            <h4 class="text-muted">No Reviews Yet</h4>
+                            <p class="text-muted">Share your travel experiences with the community.</p>
+                        </div>
+                        <div id="reviewsList"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bookmarked Packages Section -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">Bookmarked Packages</h3>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-arrow-left me-1"></i>View All Packages
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if bookmarked_packages %}
+                        <div class="row g-3">
+                            {% for package in bookmarked_packages %}
+                            <div class="col-12 col-md-6 col-lg-4">
+                                <div class="card package-card h-100">
+                                    {% if package.package.image_data %}
+                                        <img src="{{ url_for('get_package_image', package_id=package.package.id) }}" 
+                                             class="card-img-top package-image" 
+                                             alt="{{ package.package.name }}" 
+                                             style="height: 200px; object-fit: cover;">
+                                    {% else %}
+                                        <img src="{{ url_for('static', filename='images/default-package.jpg') }}" 
+                                             class="card-img-top package-image" 
+                                             alt="{{ package.package.name }}" 
+                                             style="height: 200px; object-fit: cover;">
+                                    {% endif %}
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ package.package.name }}</h5>
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <span class="badge bg-primary">{{ package.package.duration }}</span>
+                                            <span class="text-muted">৳{{ "%.2f"|format(package.package.price) }}</span>
+                                        </div>
+                                        <p class="card-text mb-2">{{ package.package.description|truncate(150) }}</p>
+                                        <div class="d-flex justify-content-between align-items-center mt-2">
+                                            <a href="{{ url_for('view_package', package_id=package.package.id) }}" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                View Details
+                                            </a>
+                                            <button class="btn btn-sm btn-danger" 
+                                                    onclick="removeBookmark({{ package.id }}, event)">
+                                                <i class="fas fa-times"></i> Remove
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-heart-broken fa-4x text-muted mb-3"></i>
+                            <h4 class="text-muted">No Bookmarked Packages</h4>
+                            <p class="text-muted">Bookmark your favorite packages to save them for later.</p>
+                            <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+                                <i class="fas fa-bookmark me-2"></i>Start Bookmarking
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Travel Diaries Section -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">My Travel Diaries</h3>
+                    <a href="{{ url_for('new_travel_history') }}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-plus me-1"></i>Create Diary
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if diaries %}
+                        <div class="row g-4">
+                            {% for diary in diaries %}
+                            <div class="col-md-6">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ diary.title }}</h5>
+                                        <p class="card-text">{{ diary.description|truncate(100) }}</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <small class="text-muted">{{ diary.created_at.strftime('%B %d, %Y') }}</small>
+                                            <div>
+                                                <a href="{{ url_for('view_diary', diary_id=diary.id) }}" class="btn btn-sm btn-primary">View</a>
+                                                <button class="btn btn-sm btn-danger" 
+                                                        onclick="deleteDiary({{ diary.id }}, event)">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-book-open fa-4x text-muted mb-3"></i>
+                            <h4 class="text-muted">No Travel Diaries</h4>
+                            <p class="text-muted">Create your first travel diary to share your adventures.</p>
+                            <a href="{{ url_for('new_travel_history') }}" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>Create Diary
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        <div class="col-12">
+        </div>
+    </div>
+
+    <!-- Reviews Modal -->
+    <div class="modal fade" id="reviewsModal" tabindex="-1" aria-labelledby="reviewsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="reviewsModalLabel">Write a Review</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ url_for('submit_review') }}" method="POST">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="name" name="name" placeholder="Enter name" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="rating" class="form-label">Rating</label>
+                            <select class="form-select" id="rating" name="rating" required>
+                                <option value="">Select rating</option>
+                                <option value="1">1 star</option>
+                                <option value="2">2 stars</option>
+                                <option value="3">3 stars</option>
+                                <option value="4">4 stars</option>
+                                <option value="5">5 stars</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="review" class="form-label">Review</label>
+                            <textarea class="form-control" id="review" name="review" rows="4" placeholder="Write your review here..." required></textarea>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Submit Review</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    function removeBookmark(packageId, event) {
+        const button = event.currentTarget;
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Removing...';
+        
+        fetch(`/toggle_bookmark/${packageId}`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!data.bookmarked) {
+                // Remove the card from the profile
+                const card = button.closest('.card');
+                if (card) {
+                    card.remove();
+                }
+                
+                // Update the button in the dashboard
+                const packageButton = document.querySelector(`button[data-package-id="${packageId}"]`);
+                if (packageButton) {
+                    packageButton.innerHTML = ' Bookmark';
+                    packageButton.querySelector('i').className = 'fas fa-bookmark-o';
+                }
+            } else {
+                throw new Error('Failed to unbookmark package');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Failed to remove bookmark. Please try again.');
+            
+            // Reset button state on error
+            button.disabled = false;
+            button.innerHTML = '<i class="fas fa-bookmark"></i> Remove Bookmark';
+        });
+    }
+
+    function deleteDiary(diaryId, event) {
+        event.preventDefault();
+        if (confirm('Are you sure you want to delete this diary? This action cannot be undone.')) {
+            // Submit the form directly instead of using fetch
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/delete_diary/${diaryId}`;
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+
+    function handlePhotoUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // Validate file type and size
+        if (!file.type.startsWith('image/')) {
+            alert('Please select an image file');
+            return;
+        }
+
+        if (file.size > 5 * 1024 * 1024) { // 5MB limit
+            alert('Image size should be less than 5MB');
+            return;
+        }
+
+        // Show the selected image immediately
+        const reader = new FileReader();
+        const photoContainer = document.querySelector('.profile-photo-container');
+        const defaultPhoto = photoContainer.querySelector('.default-photo');
+        const overlay = document.createElement('div');
+        overlay.className = 'photo-upload-overlay';
+        overlay.innerHTML = `
+            <div class="photo-upload-progress">
+                <div class="progress-bar"></div>
+            </div>
+            <div class="status-text">Uploading...</div>
+        `;
+        photoContainer.appendChild(overlay);
+
+        reader.onload = function(e) {
+            // Create a temporary image to display
+            const tempImage = document.createElement('img');
+            tempImage.src = e.target.result;
+            tempImage.className = 'profile-photo';
+            
+            // Remove the default photo if it exists
+            if (defaultPhoto) {
+                defaultPhoto.remove();
+            }
+            
+            // Add the temporary image
+            photoContainer.insertBefore(tempImage, photoContainer.firstChild);
+        };
+        
+        reader.readAsDataURL(file);
+
+        const formData = new FormData();
+        formData.append('photo', file);
+
+        fetch('/upload-profile-photo', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                overlay.querySelector('.status-text').textContent = 'Upload successful!';
+                overlay.querySelector('.progress-bar').style.width = '100%';
+                setTimeout(() => {
+                    overlay.remove();
+                    location.reload();
+                }, 1000);
+            } else {
+                overlay.remove();
+                alert('Failed to upload photo: ' + data.message);
+            }
+        })
+        .catch(error => {
+            overlay.remove();
+            console.error('Error:', error);
+            alert('An error occurred while uploading the photo');
+        });
+    }
+
+    // Add event listener to the file input
+    document.addEventListener('DOMContentLoaded', () => {
+        const fileInput = document.getElementById('profile-photo-input');
+        if (fileInput) {
+            fileInput.addEventListener('change', handlePhotoUpload);
+        }
+    });
+</script>
+
+<script>
+    // Share functions
+    function shareToFacebook() {
+        const badgeLevel = '{{ current_user.badge_level }}';
+        const userName = '{{ current_user.name }}';
+        const shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${window.location.href}`;
+        window.open(shareUrl, '_blank');
+    }
+
+    function shareToInstagram() {
+        const badgeLevel = '{{ current_user.badge_level }}';
+        const userName = '{{ current_user.name }}';
+        const shareUrl = `https://www.instagram.com/share?url=${window.location.href}`;
+        window.open(shareUrl, '_blank');
+    }
+</script>
+
+<script>
+    // Fetch and display user reviews
+    function loadUserReviews() {
+        fetch('/user_reviews')
+            .then(response => response.json())
+            .then(data => {
+                const reviews = data.reviews;
+                const noReviewsMessage = document.getElementById('noReviewsMessage');
+                const reviewsList = document.getElementById('reviewsList');
+                
+                if (reviews.length === 0) {
+                    noReviewsMessage.style.display = 'block';
+                    reviewsList.innerHTML = '';
+                } else {
+                    noReviewsMessage.style.display = 'none';
+                    const reviewsHtml = reviews.map(review => `
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="card-title mb-1">${review.name}</h5>
+                                        <div class="text-muted small">${review.created_at}</div>
+                                    </div>
+                                    <div class="rating">
+                                        ${'★'.repeat(review.rating)}
+                                        ${'☆'.repeat(5 - review.rating)}
+                                    </div>
+                                </div>
+                                <p class="card-text mt-3">${review.review_text}</p>
+                                <div class="d-flex justify-content-end">
+                                    <button class="btn btn-sm btn-danger" onclick="deleteReview(${review.id})">
+                                        <i class="fas fa-trash-alt me-1"></i>Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                    reviewsList.innerHTML = reviewsHtml;
+                }
+            })
+            .catch(error => {
+                console.error('Error loading reviews:', error);
+                const reviewsList = document.getElementById('reviewsList');
+                reviewsList.innerHTML = `
+                    <div class="alert alert-danger">
+                        Failed to load reviews. Please try again later.
+                    </div>
+                `;
+            });
+    }
+
+    // Load reviews when the page loads
+    document.addEventListener('DOMContentLoaded', loadUserReviews);
+
+    // Handle review deletion
+    function deleteReview(reviewId) {
+        if (confirm('Are you sure you want to delete this review?')) {
+            fetch(`/delete_review/${reviewId}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    loadUserReviews();
+                } else {
+                    alert('Error deleting review');
+                }
+            });
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Function to handle image load errors
+        var handleImageError = function(img) {
+            img.onerror = null; // Prevent infinite loop
+            img.src = "{{ url_for('static', filename='images/default-package.jpg') }}";
+            img.alt = "Package image not available";
+        };
+
+        // Add error handler to all package images
+        document.querySelectorAll('img.package-image').forEach(function(img) {
+            img.onerror = function() {
+                handleImageError(this);
+            };
+        });
+    });
+</script>
+{% endblock %}

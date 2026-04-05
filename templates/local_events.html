@@ -1,0 +1,375 @@
+{% extends "base.html" %}
+
+{% block title %}Local Events{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="mb-0">Local Events</h1>
+            <p class="text-muted">Discover festivals, exhibitions, concerts, and performances in Bangladesh</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-light">
+            <h5 class="mb-0">
+                <i class="fas fa-filter me-2"></i>Filter Events
+            </h5>
+        </div>
+        <div class="card-body">
+            <form action="{{ url_for('local_events') }}" method="GET" id="filterForm">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="location" class="form-label">Location</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                            <input type="text" class="form-control" id="location" name="location" 
+                                   placeholder="Enter city or region" value="{{ request.args.get('location', '') }}">
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <label for="start_date" class="form-label">Start Date</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                            <input type="date" class="form-control" id="start_date" name="start_date"
+                                   value="{{ request.args.get('start_date', '') }}">
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <label for="end_date" class="form-label">End Date</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                            <input type="date" class="form-control" id="end_date" name="end_date"
+                                   value="{{ request.args.get('end_date', '') }}">
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-2">
+                        <label for="event_type" class="form-label">Event Type</label>
+                        <select class="form-select" id="event_type" name="event_type">
+                            <option value="">All Types</option>
+                            <option value="Festival" {% if request.args.get('event_type') == 'Festival' %}selected{% endif %}>Festival</option>
+                            <option value="Exhibition" {% if request.args.get('event_type') == 'Exhibition' %}selected{% endif %}>Exhibition</option>
+                            <option value="Concert" {% if request.args.get('event_type') == 'Concert' %}selected{% endif %}>Concert</option>
+                            <option value="Performance" {% if request.args.get('event_type') == 'Performance' %}selected{% endif %}>Performance</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Favorites Filter -->
+                <div class="form-check mt-3">
+                    <input type="checkbox" class="form-check-input" id="favorites_only" name="favorites_only" value="true" 
+                           {% if request.args.get('favorites_only') == 'true' %}checked{% endif %}>
+                    <label class="form-check-label" for="favorites_only">
+                        <i class="fas fa-heart text-danger me-1"></i>Show my favorites only
+                    </label>
+                </div>
+                
+                <div class="mt-3 d-flex justify-content-between">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-search me-2"></i>Apply Filters
+                    </button>
+                    <a href="{{ url_for('local_events') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times me-2"></i>Clear Filters
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Active Filters Display -->
+    {% if request.args.get('location') or request.args.get('start_date') or request.args.get('end_date') or request.args.get('event_type') or request.args.get('favorites_only') %}
+    <div class="alert alert-info mb-4">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-info-circle me-2"></i>
+            <div>
+                <strong>Active Filters:</strong>
+                {% if request.args.get('location') %}
+                <span class="badge bg-primary me-2">Location: {{ request.args.get('location') }}</span>
+                {% endif %}
+                
+                {% if request.args.get('start_date') %}
+                <span class="badge bg-primary me-2">From: {{ request.args.get('start_date') }}</span>
+                {% endif %}
+                
+                {% if request.args.get('end_date') %}
+                <span class="badge bg-primary me-2">To: {{ request.args.get('end_date') }}</span>
+                {% endif %}
+                
+                {% if request.args.get('event_type') %}
+                <span class="badge bg-primary me-2">Type: {{ request.args.get('event_type') }}</span>
+                {% endif %}
+                
+                {% if request.args.get('favorites_only') %}
+                <span class="badge bg-primary me-2">Favorites Only</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Events List -->
+    <div class="row">
+        {% if events %}
+            {% for event in events.items %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-header bg-light">
+                        <h5 class="card-title mb-0">{{ event.title }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <span class="badge bg-primary mb-2">{{ event.event_type }}</span>
+                            <p class="card-text">{{ event.description }}</p>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <div>
+                                <i class="fas fa-map-marker-alt text-danger"></i>
+                                <span class="ms-1">{{ event.location }}</span>
+                            </div>
+                            <div>
+                                <i class="fas fa-calendar-day text-primary"></i>
+                                <span class="ms-1">{{ event.event_date.strftime('%b %d, %Y') }}</span>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            {% set favorited = false %}
+                            {% for favorite in current_user.favorited_events %}
+                                {% if favorite.event_id == event.id %}
+                                    {% set favorited = true %}
+                                {% endif %}
+                            {% endfor %}
+                            
+                            <form method="POST" action="{% if favorited %}{{ url_for('unfavorite_event', event_id=event.id) }}{% else %}{{ url_for('favorite_event', event_id=event.id) }}{% endif %}">
+                                <button type="submit" class="btn {% if favorited %}btn-danger{% else %}btn-outline-danger{% endif %}">
+                                    <i class="fas fa-heart"></i> {% if favorited %}Favorited{% else %}Favorite{% endif %}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>No events found matching your criteria.
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Pagination -->
+    {% if events.pages > 1 %}
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if events.has_prev %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('local_events', page=events.prev_num, location=request.args.get('location', ''), start_date=request.args.get('start_date', ''), end_date=request.args.get('end_date', ''), event_type=request.args.get('event_type', ''), favorites_only=request.args.get('favorites_only', '')) }}">
+                    <i class="fas fa-chevron-left"></i> Previous
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link"><i class="fas fa-chevron-left"></i> Previous</span>
+            </li>
+            {% endif %}
+            
+            {% for page_num in events.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                {% if page_num %}
+                    {% if page_num == events.page %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ page_num }}</span>
+                    </li>
+                    {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('local_events', page=page_num, location=request.args.get('location', ''), start_date=request.args.get('start_date', ''), end_date=request.args.get('end_date', ''), event_type=request.args.get('event_type', ''), favorites_only=request.args.get('favorites_only', '')) }}">{{ page_num }}</a>
+                    </li>
+                    {% endif %}
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                {% endif %}
+            {% endfor %}
+            
+            {% if events.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('local_events', page=events.next_num, location=request.args.get('location', ''), start_date=request.args.get('start_date', ''), end_date=request.args.get('end_date', ''), event_type=request.args.get('event_type', ''), favorites_only=request.args.get('favorites_only', '')) }}">
+                    Next <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">Next <i class="fas fa-chevron-right"></i></span>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<!-- Event Details Modal -->
+<div class="modal fade" id="eventDetailsModal" tabindex="-1" aria-labelledby="eventDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="eventDetailsModalLabel">Event Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="eventDetailsContent">
+                <div class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading event details...</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Event details modal functionality
+        const viewDetailsBtns = document.querySelectorAll('.view-event-details');
+        const eventDetailsContent = document.getElementById('eventDetailsContent');
+        
+        viewDetailsBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const eventId = this.getAttribute('data-event-id');
+                
+                // Show loading spinner
+                eventDetailsContent.innerHTML = `
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">Loading event details...</p>
+                    </div>
+                `;
+                
+                // Fetch event details
+                fetch(`/events/${eventId}/details`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const event = data.event;
+                            
+                            eventDetailsContent.innerHTML = `
+                                <div class="row">
+                                    <div class="col-12">
+                                        <h3>${event.title}</h3>
+                                        <div class="d-flex mb-3">
+                                            <span class="badge bg-primary me-2">${event.event_type}</span>
+                                            <div class="me-3">
+                                                <i class="fas fa-map-marker-alt text-danger"></i>
+                                                <span class="ms-1">${event.location}</span>
+                                            </div>
+                                            <div>
+                                                <i class="fas fa-calendar-day text-primary"></i>
+                                                <span class="ms-1">${new Date(event.event_date).toLocaleDateString('en-US', {
+                                                    weekday: 'long',
+                                                    year: 'numeric',
+                                                    month: 'long',
+                                                    day: 'numeric'
+                                                })}</span>
+                                            </div>
+                                        </div>
+                                        <hr>
+                                        <h5>Description:</h5>
+                                        <p>${event.description}</p>
+                                        <h5>Details:</h5>
+                                        <p>${event.detailed_description || 'No detailed description available.'}</p>
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            eventDetailsContent.innerHTML = `
+                                <div class="alert alert-danger">
+                                    <i class="fas fa-exclamation-circle me-2"></i>
+                                    Failed to load event details. Please try again.
+                                </div>
+                            `;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        eventDetailsContent.innerHTML = `
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-circle me-2"></i>
+                                An error occurred while loading event details. Please try again.
+                            </div>
+                        `;
+                    });
+            });
+        });
+        
+        // Favorite button functionality
+        const favoriteBtns = document.querySelectorAll('.favorite-btn');
+        
+        favoriteBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const eventId = this.getAttribute('data-event-id');
+                const isFavorited = this.getAttribute('data-favorited') === 'true';
+                const button = this;
+                
+                // Determine the endpoint based on current state
+                const endpoint = isFavorited ? 
+                    `/events/${eventId}/unfavorite` : 
+                    `/events/${eventId}/favorite`;
+                
+                // Send request to favorite/unfavorite
+                fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update button appearance based on new state
+                        if (isFavorited) {
+                            // Was favorited, now unfavorited
+                            button.classList.remove('btn-danger');
+                            button.classList.add('btn-outline-danger');
+                            button.innerHTML = '<i class="fas fa-heart"></i> Favorite';
+                            button.setAttribute('data-favorited', 'false');
+                        } else {
+                            // Was not favorited, now favorited
+                            button.classList.remove('btn-outline-danger');
+                            button.classList.add('btn-danger');
+                            button.innerHTML = '<i class="fas fa-heart"></i> Favorited';
+                            button.setAttribute('data-favorited', 'true');
+                        }
+                    } else {
+                        // Show error message if something went wrong
+                        console.error(data.message);
+                        alert(data.message || 'An error occurred. Please try again.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while processing your request.');
+                });
+            });
+        });
+    });
+</script>
+{% endblock %}

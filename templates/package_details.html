@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block style %}
+<style>
+.dark-mode .card-body,
+.dark-mode .card-body * {
+    color: #f9fafb !important;
+}
+.dark-mode .card-title.text-primary,
+.dark-mode strong {
+    color: #C4B5FD !important;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="mb-0">{{ package.name }}</h3>
+            <div class="btn-group" role="group">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Packages
+                </a>
+                {% if current_user.is_authenticated %}
+                <button class="btn btn-outline-primary bookmark-btn" data-package-id="{{ package.id }}">
+                    <i class="fas fa-{{ 'bookmark' if is_bookmarked else 'bookmark-o' }}"></i>
+                    {{ 'Unbookmark' if is_bookmarked else 'Bookmark' }}
+                </button>
+                {% endif %}
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row g-4">
+                <div class="col-md-8">
+                    {% if package.image_data %}
+                        <img src="{{ url_for('get_package_image', package_id=package.id) }}" 
+                             class="img-fluid rounded package-image" 
+                             alt="{{ package.name }}" 
+                             style="max-height: 400px; object-fit: cover;">
+                    {% else %}
+                        <div class="bg-light d-flex justify-content-center align-items-center rounded" style="height: 400px;">
+                            <i class="fas fa-image fa-5x text-muted"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h5 class="card-title text-primary">Package Details</h5>
+                            <div class="mb-3">
+                                <strong>Duration:</strong> {{ package.duration }}
+                            </div>
+                            <div class="mb-3">
+                                <strong>Price:</strong> <span class="text-primary">BDT {{ "%.2f"|format(package.price) }}</span>
+                            </div>
+                            <div class="mb-3">
+                                <strong>Description:</strong>
+                                <p class="mt-2">{{ package.description }}</p>
+                            </div>
+                            <div class="mt-4">
+                                <form action="/create-checkout-session/{{ package.id }}" method="POST">
+                                    <button type="submit" id="bookNowBtn" class="btn btn-primary btn-lg w-100">
+                                        <i class="fas fa-ticket-alt me-2"></i>Book Now
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bookmarked Packages Section -->
+{% if current_user.is_authenticated %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="mb-0">My Bookmarked Packages</h3>
+            <a href="{{ url_for('profile') }}" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-user me-1"></i>View All
+            </a>
+        </div>
+        <div class="card-body">
+            {% if bookmarked_packages %}
+                <div class="row g-3">
+                    {% for bookmark in bookmarked_packages %}
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            {% if bookmark.package.image_data %}
+                            <img src="{{ url_for('get_package_image', package_id=bookmark.package.id) }}" 
+                                 class="card-img-top package-image" 
+                                 alt="{{ bookmark.package.name }}" 
+                                 style="height: 200px; object-fit: cover;">
+                            {% else %}
+                            <div class="bg-light d-flex justify-content-center align-items-center" style="height: 200px;">
+                                <i class="fas fa-image fa-3x text-muted"></i>
+                            </div>
+                            {% endif %}
+                            <div class="card-body">
+                                <h5 class="card-title">{{ bookmark.package.name }}</h5>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="badge bg-primary">{{ bookmark.package.duration }}</span>
+                                    <span class="text-muted">BDT {{ "%.2f"|format(bookmark.package.price) }}</span>
+                                </div>
+                                <p class="card-text mb-3">{{ bookmark.package.description|truncate(100) }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <a href="{{ url_for('view_package', package_id=bookmark.package.id) }}" 
+                                       class="btn btn-sm btn-outline-primary">
+                                        View Details
+                                    </a>
+                                    <button class="btn btn-sm btn-danger" 
+                                            onclick="removeBookmark({{ bookmark.package.id }}, event)">
+                                        <i class="fas fa-times"></i> Remove
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-heart-broken fa-4x text-muted mb-3"></i>
+                    <h4 class="text-muted">No Bookmarked Packages</h4>
+                    <p class="text-muted">Bookmark your favorite packages to save them for later.</p>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+                        <i class="fas fa-bookmark me-2"></i>Start Bookmarking
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Stripe with the publishable key
+    var stripe = Stripe('{{ stripe_key }}');
+
+    // Function to handle image load errors
+    var handleImageError = function(img) {
+        img.onerror = null; // Prevent infinite loop
+        img.src = "{{ url_for('static', filename='images/placeholder.jpg') }}";
+        img.alt = "Package image not available";
+    };
+
+    // Add error handler to all package images
+    document.querySelectorAll('img.package-image').forEach(function(img) {
+        img.onerror = function() {
+            handleImageError(this);
+        };
+    });
+
+    // Toggle bookmark functionality
+    var toggleBookmark = function(packageId, event) {
+        event.preventDefault();
+        
+        fetch('/toggle_bookmark/' + packageId, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(data) {
+            var button = event.currentTarget;
+            var icon = button.querySelector('i');
+            
+            if (data.bookmarked) {
+                icon.className = 'fas fa-bookmark';
+                button.innerHTML = '<i class="fas fa-bookmark"></i> Bookmarked';
+            } else {
+                icon.className = 'fas fa-bookmark-o';
+                button.innerHTML = '<i class="fas fa-bookmark-o"></i> Bookmark';
+            }
+        })
+        .catch(function(error) {
+            console.error('Error:', error);
+        });
+    };
+
+    // Attach bookmark handlers
+    document.querySelectorAll('.bookmark-btn').forEach(function(button) {
+        button.addEventListener('click', function(event) {
+            var packageId = this.getAttribute('data-package-id');
+            toggleBookmark(packageId, event);
+        });
+    });
+});
+</script>
+{% endblock %}

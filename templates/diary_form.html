@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0">{% if form.title.data %}Edit{% else %}New{% endif %} Travel Diary</h3>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('new_travel_history') }}" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            {{ form.title.label(class="form-label") }}
+                            {{ form.title(class="form-control") }}
+                            {% if form.title.errors %}
+                                {% for error in form.title.errors %}
+                                    <small class="text-danger">{{ error }}</small>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.description.label(class="form-label") }}
+                            {{ form.description(class="form-control") }}
+                            {% if form.description.errors %}
+                                {% for error in form.description.errors %}
+                                    <small class="text-danger">{{ error }}</small>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.content.label(class="form-label") }}
+                            {{ form.content(class="form-control", rows="5") }}
+                            {% if form.content.errors %}
+                                {% for error in form.content.errors %}
+                                    <small class="text-danger">{{ error }}</small>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.hotel.label(class="form-label") }}
+                            {{ form.hotel(class="form-control") }}
+                            {% if form.hotel.errors %}
+                                {% for error in form.hotel.errors %}
+                                    <small class="text-danger">{{ error }}</small>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.restaurant.label(class="form-label") }}
+                            {{ form.restaurant(class="form-control") }}
+                            {% if form.restaurant.errors %}
+                                {% for error in form.restaurant.errors %}
+                                    <small class="text-danger">{{ error }}</small>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.rating.label(class="form-label") }}
+                            <div class="rating-container">
+                                <input type="range" id="ratingRange" name="rating" min="0" max="5" step="1" value="{{ form.rating.data or 0 }}">
+                                <span id="ratingValue">{{ form.rating.data or 0 }}</span>
+                            </div>
+                            {% if form.rating.errors %}
+                                {% for error in form.rating.errors %}
+                                    <small class="text-danger">{{ error }}</small>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.is_public.label(class="form-label") }}
+                            {{ form.is_public(class="form-check-input") }}
+                            {% if form.is_public.errors %}
+                                {% for error in form.is_public.errors %}
+                                    <small class="text-danger">{{ error }}</small>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.photos.label(class="form-label") }}
+                            {{ form.photos(class="form-control", multiple="multiple") }}
+                            <small class="form-text text-muted">You can upload up to 5 photos (PNG, JPG, JPEG, GIF)</small>
+                            {% if form.photos.errors %}
+                                {% for error in form.photos.errors %}
+                                    <small class="text-danger">{{ error }}</small>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.videos.label(class="form-label") }}
+                            {{ form.videos(class="form-control", multiple="multiple") }}
+                            <small class="form-text text-muted">You can upload up to 2 videos (MP4, AVI, MOV)</small>
+                            {% if form.videos.errors %}
+                                {% for error in form.videos.errors %}
+                                    <small class="text-danger">{{ error }}</small>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('ratingRange').addEventListener('input', function() {
+    document.getElementById('ratingValue').textContent = this.value;
+});
+</script>
+{% endblock %}

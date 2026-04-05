@@ -1,0 +1,465 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Ghoori.com{% endblock %}
+
+{% block style %}
+.scroll-container {
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+    padding-right: 1rem;
+    margin-top: 20px;
+}
+.scroll-container::-webkit-scrollbar {
+    width: 8px;
+}
+.scroll-container::-webkit-scrollbar-track {
+    background: var(--bg-light);
+    border-radius: 4px;
+}
+.scroll-container::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 4px;
+}
+.dark-mode .scroll-container::-webkit-scrollbar-track {
+    background: var(--bg-dark);
+}
+
+.stats-card {
+    text-align: center;
+    padding: 1.5rem;
+    transition: transform 0.3s;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+}
+
+.stats-card i {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.dark-mode .stats-card i {
+    color: var(--primary-light);
+}
+
+.preference-item {
+    padding: 1rem;
+    border-bottom: 1px solid var(--primary-light);
+    transition: background-color 0.3s;
+}
+
+.preference-item:hover {
+    background-color: var(--primary-light);
+}
+
+.dark-mode .preference-item {
+    border-bottom-color: var(--primary-dark);
+}
+
+.dark-mode .preference-item:hover {
+    background-color: var(--primary-dark);
+}
+
+.preference-item:last-child {
+    border-bottom: none;
+}
+
+.preference-label {
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-right: 1rem;
+}
+
+.dark-mode .preference-label {
+    color: var(--primary-light);
+}
+
+.package-image {
+    height: 200px;
+    object-fit: cover;
+    width: 100%;
+    border-radius: 15px 15px 0 0;
+}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="dashboard-container">
+        <div class="scroll-container">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="welcome-text mb-0">Welcome, {{ current_user.name }}! 🎉</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card stats-card">
+                                <i class="fas fa-user"></i>
+                                <h3>Profile</h3>
+                                <p>{{ current_user.email }}</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <a href="{{ url_for('house') }}" class="text-decoration-none">
+                                <div class="card stats-card">
+                                    <i class="fas fa-map-marked-alt"></i>
+                                    <h3>Trip Planning</h3>
+                                    <p>Customize your journey</p>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card stats-card">
+                                <i class="fas fa-calendar-alt"></i>
+                                <h3>Travel History</h3>
+                                <p>View your adventures</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% if trip_preferences %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="mb-0"><i class="fas fa-list me-2"></i>Your Trip Preferences</h3>
+                </div>
+                <div class="card-body">
+                    <div class="preference-item">
+                        <span class="preference-label">Travel Type:</span>
+                        <span class="preference-value">{{ trip_preferences.travel_type.title() }}</span>
+                    </div>
+                    <div class="preference-item">
+                        <span class="preference-label">Budget Range:</span>
+                        <span class="preference-value">{{ trip_preferences.budget_range }}</span>
+                    </div>
+                    <div class="preference-item">
+                        <span class="preference-label">Preferred Activities:</span>
+                        <span class="preference-value">{{ trip_preferences.preferred_activities.title() }}</span>
+                    </div>
+                    <div class="preference-item">
+                        <span class="preference-label">Accommodation:</span>
+                        <span class="preference-value">{{ trip_preferences.accommodation_type.replace('_', ' ').title() }}</span>
+                    </div>
+                    {% if trip_preferences.preferred_destinations %}
+                    <div class="preference-item">
+                        <span class="preference-label">Preferred Destinations:</span>
+                        <span class="preference-value">{{ trip_preferences.preferred_destinations }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="mt-3">
+                        <a href="{{ url_for('trip_preferences') }}" class="btn btn-primary">
+                            <i class="fas fa-edit me-2"></i>Update Preferences
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="mb-0"><i class="fas fa-info-circle me-2"></i>No Preferences Set</h3>
+                </div>
+                <div class="card-body">
+                    <p>You haven't set your trip preferences yet.</p>
+                    <a href="{{ url_for('trip_preferences') }}" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Set Trip Preferences
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Local Events Section -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Local Events</h3>
+                    <a href="{{ url_for('local_events') }}" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-external-link-alt me-1"></i>View All Events
+                    </a>
+                </div>
+                <div class="card-body">
+                    <p class="mb-3">Discover festivals, exhibitions, concerts, and performances happening in Bangladesh.</p>
+                    <div class="d-grid">
+                        <a href="{{ url_for('local_events') }}" class="btn btn-primary">
+                            <i class="fas fa-calendar-day me-2"></i>Browse Local Events
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tour Packages Section -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0"><i class="fas fa-map-marked-alt me-2"></i>Tour Packages</h3>
+                    <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse">
+                        <i class="fas fa-filter me-1"></i>Filter
+                    </button>
+                    <a href="{{ url_for('packing_checklist') }}" class="btn btn-primary">
+                        <i class="fas fa-list-check"></i> Checklist
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="collapse mb-3" id="filterCollapse">
+                        <div class="card card-body bg-light">
+                            <form method="GET" action="{{ url_for('dashboard') }}" class="row g-3">
+                                <div class="col-md-5">
+                                    <label for="budget" class="form-label">Budget Range</label>
+                                    <select class="form-select" id="budget" name="budget">
+                                        <option value="">Any Budget</option>
+                                        <option value="budget" {% if request.args.get('budget') == 'budget' %}selected{% endif %}>৳5,000 - ৳15,000</option>
+                                        <option value="mid_range" {% if request.args.get('budget') == 'mid_range' %}selected{% endif %}>৳15,000 - ৳30,000</option>
+                                        <option value="luxury" {% if request.args.get('budget') == 'luxury' %}selected{% endif %}>৳30,000 - ৳50,000</option>
+                                        <option value="ultra_luxury" {% if request.args.get('budget') == 'ultra_luxury' %}selected{% endif %}>৳50,000+</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-5">
+                                    <label for="duration" class="form-label">Trip Duration</label>
+                                    <select class="form-select" id="duration" name="duration">
+                                        <option value="">Any Duration</option>
+                                        <option value="short" {% if request.args.get('duration') == 'short' %}selected{% endif %}>1-3 Days</option>
+                                        <option value="medium" {% if request.args.get('duration') == 'medium' %}selected{% endif %}>4-7 Days</option>
+                                        <option value="long" {% if request.args.get('duration') == 'long' %}selected{% endif %}>8-14 Days</option>
+                                        <option value="extended" {% if request.args.get('duration') == 'extended' %}selected{% endif %}>15+ Days</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2 d-flex align-items-end">
+                                    <button type="submit" class="btn btn-primary w-100">Apply</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    {% if active_filters %}
+                    <div class="alert alert-info mb-3">
+                        <i class="fas fa-filter me-2"></i> Showing packages filtered by: 
+                        <ul class="mb-0 mt-1">
+                            {% if active_filters.budget %}
+                            <li><strong>Budget:</strong> {{ active_filters.budget }}</li>
+                            {% endif %}
+                            {% if active_filters.duration %}
+                            <li><strong>Duration:</strong> {{ active_filters.duration }}</li>
+                            {% endif %}
+                        </ul>
+                        <div class="mt-2">
+                            <a href="{{ url_for('dashboard') }}" class="alert-link">Clear filters</a>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if trip_packages %}
+                        <div class="row g-4">
+                            {% for package in trip_packages %}
+                            <div class="col-md-6 col-lg-4">
+                                <div class="card h-100">
+                                    {% if package.image_data %}
+                                        <img src="{{ url_for('get_package_image', package_id=package.id) }}" alt="{{ package.name }}" class="card-img-top package-image">
+                                    {% else %}
+                                        <img src="{{ url_for('static', filename='images/default-package.jpg') }}" alt="{{ package.name }}" class="card-img-top package-image">
+                                    {% endif %}
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ package.name }}</h5>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="badge bg-primary">{{ package.duration }}</span>
+                                            <span class="text-muted">৳{{ "%.2f"|format(package.price) }}</span>
+                                        </div>
+                                        <p class="text-muted mb-2"><i class="fas fa-map-marker-alt me-1"></i> {{ package.destination }}</p>
+                                        <p class="card-text mb-3">{{ package.description|truncate(100) }}</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <a href="{{ url_for('view_package', package_id=package.id) }}" 
+                                               class="btn btn-sm btn-outline-primary">
+                                                View Details
+                                            </a>
+                                            <button class="btn btn-sm btn-outline-primary bookmark-btn" 
+                                                    data-package-id="{{ package.id }}">
+                                                {% set bookmarked = package.id in bookmarked_package_ids %}
+                                                <i class="fas fa-{{ 'bookmark' if bookmarked else 'bookmark-o' }}"></i>
+                                                {{ 'Bookmarked' if bookmarked else 'Bookmark' }}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-suitcase-rolling fa-4x text-muted mb-3"></i>
+                            <h4 class="text-muted">No Tour Packages Available</h4>
+                            <p class="text-muted">Please check back later for our curated tour packages.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <!-- Booked Packages Section -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0"><i class="fas fa-ticket-alt me-2"></i>Booked Packages</h3>
+                    <span class="badge bg-success">Paid</span>
+                </div>
+                <div class="card-body">
+                    {% if booked_packages %}
+                        <div class="row g-4">
+                            {% for booking, package in booked_packages %}
+                            <div class="col-md-6 col-lg-4">
+                                <div class="card h-100 border-success">
+                                    <div class="card-header bg-success text-white">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span><i class="fas fa-check-circle me-2"></i>Confirmed</span>
+                                            <small>{{ booking.created_at.strftime('%d %b, %Y') }}</small>
+                                        </div>
+                                    </div>
+                                    {% if package.image_data %}
+                                        <img src="{{ url_for('get_package_image', package_id=package.id) }}" 
+                                             class="card-img-top package-image" 
+                                             alt="{{ package.name }}">
+                                    {% else %}
+                                        <img src="{{ url_for('static', filename='images/default-package.jpg') }}" 
+                                             class="card-img-top package-image" 
+                                             alt="{{ package.name }}">
+                                    {% endif %}
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ package.name }}</h5>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="badge bg-primary">{{ package.duration }}</span>
+                                            <span class="text-success fw-bold">BDT {{ "%.2f"|format(package.price) }}</span>
+                                        </div>
+                                        <p class="text-muted mb-2"><i class="fas fa-map-marker-alt me-1"></i> {{ package.destination }}</p>
+                                        <p class="card-text mb-3">{{ package.description|truncate(100) }}</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <a href="{{ url_for('view_package', package_id=package.id) }}" 
+                                               class="btn btn-sm btn-outline-success">
+                                                <i class="fas fa-info-circle me-1"></i>View Details
+                                            </a>
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check me-1"></i>Paid
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-ticket-alt fa-4x text-muted mb-3"></i>
+                            <h4 class="text-muted">No Booked Packages</h4>
+                            <p class="text-muted">You haven't booked any packages yet. Explore our tour packages and book your next adventure!</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            <!-- Your Travel Diaries Section -->
+            <!-- Emergency Services Section -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="mb-0"><i class="fas fa-ambulance me-2"></i>Emergency Services</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="card stats-card">
+                                <a href="{{ url_for('hospitals') }}" class="text-decoration-none">
+                                    <i class="fas fa-hospital"></i>
+                                    <h4>Hospitals</h4>
+                                    <p class="text-muted">Find nearby hospitals and medical facilities</p>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card stats-card">
+                                <a href="{{ url_for('police') }}" class="text-decoration-none">
+                                    <i class="fas fa-shield-alt"></i>
+                                    <h4>Police Stations</h4>
+                                    <p class="text-muted">Locate nearby police stations</p>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0"><i class="fas fa-book me-2"></i>Your Travel Diaries</h3>
+                </div>
+                <div class="card-body">
+                    {% if diaries %}
+                        <div class="row g-4">
+                            {% for diary in diaries %}
+                            <div class="col-md-6 col-lg-4">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ diary.title }}</h5>
+                                        <p class="card-text">{{ diary.description|truncate(100) }}</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <small class="text-muted">{{ diary.created_at.strftime('%B %d, %Y') }}</small>
+                                             <div>
+                                                 <a href="{{ url_for('view_diary', diary_id=diary.id) }}" class="btn btn-sm btn-primary">View</a>
+                                             </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No travel diaries yet. Start your first one!</p>
+                        <a href="{{ url_for('new_travel_history') }}" class="btn btn-primary">Create New Diary</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Function to handle image load errors
+        const handleImageError = function(img) {
+            img.onerror = null; // Prevent infinite loop
+            img.src = "{{ url_for('static', filename='images/default-package.jpg') }}";
+            img.alt = "Package image not available";
+        };
+
+        // Add error handler to all package images
+        document.querySelectorAll('img.package-image').forEach(function(img) {
+            img.onerror = function() {
+                handleImageError(this);
+            };
+        });
+
+        // Update bookmark functionality
+        document.querySelectorAll('.bookmark-btn').forEach(function(button) {
+            button.addEventListener('click', function(event) {
+                event.preventDefault();
+                const packageId = this.getAttribute('data-package-id');
+                
+                fetch('/toggle_bookmark/' + packageId, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(function(response) {
+                    return response.json();
+                })
+                .then(function(data) {
+                    const icon = this.querySelector('i');
+                    if (data.bookmarked) {
+                        icon.className = 'fas fa-bookmark';
+                        this.innerHTML = '<i class="fas fa-bookmark"></i> Bookmarked';
+                    } else {
+                        icon.className = 'fas fa-bookmark-o';
+                        this.innerHTML = '<i class="fas fa-bookmark-o"></i> Bookmark';
+                    }
+                }.bind(this))
+                .catch(function(error) {
+                    console.error('Error:', error);
+                });
+            });
+        });
+    });
+</script>
+{% endblock %}

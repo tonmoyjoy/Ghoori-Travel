@@ -1,0 +1,236 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .booking-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: #fff;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .booking-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .booking-header h2 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+        color: #2c3e50;
+    }
+
+    .booking-header .emoji {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #2c3e50;
+        font-weight: 500;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.8rem;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.3s;
+    }
+
+    .form-control:focus {
+        border-color: #3498db;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: 1rem;
+        background: #3498db;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-submit:hover {
+        background: #2980b9;
+        transform: translateY(-2px);
+    }
+
+    .popular-routes {
+        margin-top: 2rem;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .popular-routes h3 {
+        color: #2c3e50;
+        margin-bottom: 1rem;
+    }
+
+    .route-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .route-chip {
+        padding: 0.5rem 1rem;
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .route-chip:hover {
+        background: #e8f4fd;
+        border-color: #3498db;
+    }
+
+    .price-estimate {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: #e8f6f3;
+        border-radius: 8px;
+        text-align: center;
+        display: none;
+    }
+
+    .price-estimate.show {
+        display: block;
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<div class="booking-container">
+    <div class="booking-header">
+        <div class="emoji">{{ emoji }}</div>
+        <h2>Book {{ transport_type|title }}</h2>
+        <p>Find the best {{ transport_type }} deals for your journey</p>
+    </div>
+
+    <form method="POST" id="bookingForm">
+        <div class="form-group">
+            <label for="source">From</label>
+            <input type="text" class="form-control" id="source" name="source" required
+                   placeholder="Enter departure city">
+        </div>
+
+        <div class="form-group">
+            <label for="destination">To</label>
+            <input type="text" class="form-control" id="destination" name="destination" required
+                   placeholder="Enter destination city">
+        </div>
+
+        <div class="form-group">
+            <label for="date">Date</label>
+            <input type="date" class="form-control" id="date" name="date" required
+                   min="{{ today }}" value="{{ today }}">
+        </div>
+
+        <div class="form-group">
+            <label for="time">Time</label>
+            <input type="time" class="form-control" id="time" name="time" required>
+        </div>
+
+        <div class="form-group">
+            <label for="passengers">Number of Passengers</label>
+            <input type="number" class="form-control" id="passengers" name="passengers"
+                   min="1" max="10" value="1" required>
+        </div>
+
+        <button type="submit" class="btn-submit">
+            Confirm Booking
+        </button>
+    </form>
+
+    <div class="popular-routes">
+        <h3>Popular Routes</h3>
+        <div class="route-chips">
+            <div class="route-chip" onclick="setRoute('Dhaka', 'Chittagong')">Dhaka → Chittagong</div>
+            <div class="route-chip" onclick="setRoute('Dhaka', 'Cox\'s Bazar')">Dhaka → Cox's Bazar</div>
+            <div class="route-chip" onclick="setRoute('Dhaka', 'Sylhet')">Dhaka → Sylhet</div>
+            <div class="route-chip" onclick="setRoute('Dhaka', 'Rajshahi')">Dhaka → Rajshahi</div>
+        </div>
+    </div>
+
+    <div class="price-estimate" id="priceEstimate"></div>
+</div>
+
+<script>
+    // Set minimum date to today
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('date').min = today;
+    
+    // Set a default time (e.g., 2 hours from now)
+    const now = new Date();
+    now.setHours(now.getHours() + 2);
+    document.getElementById('time').value = now.toTimeString().slice(0,5);
+
+    function setRoute(from, to) {
+        document.getElementById('source').value = from;
+        document.getElementById('destination').value = to;
+        
+        // Show price estimate
+        const basePrice = {
+            'flight': 5000,
+            'bus': 800,
+            'train': 1200,
+            'car': 2000
+        }['{{ transport_type }}'];
+        
+        const passengers = document.getElementById('passengers').value;
+        const totalPrice = basePrice * passengers;
+        
+        const estimate = document.getElementById('priceEstimate');
+        estimate.innerHTML = `
+            <h4>Estimated Price</h4>
+            <p>Base fare: ৳${basePrice}</p>
+            <p>Total for ${passengers} passenger(s): ৳${totalPrice}</p>
+        `;
+        estimate.classList.add('show');
+    }
+
+    // Update price estimate when passengers change
+    document.getElementById('passengers').addEventListener('change', function() {
+        if (document.getElementById('source').value && document.getElementById('destination').value) {
+            setRoute(
+                document.getElementById('source').value,
+                document.getElementById('destination').value
+            );
+        }
+    });
+
+    // Form validation
+    document.getElementById('bookingForm').addEventListener('submit', function(e) {
+        const source = document.getElementById('source').value;
+        const destination = document.getElementById('destination').value;
+        
+        if (source.toLowerCase() === destination.toLowerCase()) {
+            e.preventDefault();
+            alert('Source and destination cannot be the same!');
+        }
+    });
+</script>
+{% endblock %}

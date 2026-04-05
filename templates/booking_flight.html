@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block title %}Book Flight - Ghoori.com{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h3><i class="fas fa-plane"></i> Flight Booking</h3>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                {{ form.hidden_tag() }}
+                
+                <div class="row g-3">
+                    {% for field in form if field.widget.input_type != 'hidden' %}
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            {{ field.label(class="form-label") }}
+                            {{ field(class="form-control") }}
+                            {% if field.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in field.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                        <i class="fas fa-check-circle"></i> Confirm Flight Booking
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 15px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .form-control {
+        border-radius: 8px;
+        padding: 12px;
+    }
+    .btn-primary {
+        background-color: #0d6efd;
+        border: none;
+        padding: 12px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    .btn-primary:hover {
+        background-color: #0b5ed7;
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}

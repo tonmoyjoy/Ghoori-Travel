@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <h2 class="mb-4">{{ title }}</h2>
+            
+            <form method="POST" action="">
+                {{ form.hidden_tag() }}
+                
+                <div class="mb-3">
+                    {{ form.name.label(class="form-label") }}
+                    {{ form.name(class="form-control") }}
+                    {% if form.name.errors %}
+                        {% for error in form.name.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.location.label(class="form-label") }}
+                    {{ form.location(class="form-control") }}
+                    {% if form.location.errors %}
+                        {% for error in form.location.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        {{ form.start_date.label(class="form-label") }}
+                        {{ form.start_date(class="form-control") }}
+                        {% if form.start_date.errors %}
+                            {% for error in form.start_date.errors %}
+                                <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.end_date.label(class="form-label") }}
+                        {{ form.end_date(class="form-control") }}
+                        {% if form.end_date.errors %}
+                            {% for error in form.end_date.errors %}
+                                <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    {{ form.description.label(class="form-label") }}
+                    {{ form.description(class="form-control", rows="4") }}
+                    {% if form.description.errors %}
+                        {% for error in form.description.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.important_events.label(class="form-label") }}
+                    {{ form.important_events(class="form-control", rows="4", placeholder="e.g., Visited historical sites, tried local cuisine, met new friends") }}
+                    {% if form.important_events.errors %}
+                        {% for error in form.important_events.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.rating.label(class="form-label") }}
+                    <div class="rating-container">
+                        <input type="radio" id="star5" name="rating" value="5" {{ 'checked' if form.rating.data == 5 }}>
+                        <label for="star5">★</label>
+                        <input type="radio" id="star4" name="rating" value="4" {{ 'checked' if form.rating.data == 4 }}>
+                        <label for="star4">★</label>
+                        <input type="radio" id="star3" name="rating" value="3" {{ 'checked' if form.rating.data == 3 }}>
+                        <label for="star3">★</label>
+                        <input type="radio" id="star2" name="rating" value="2" {{ 'checked' if form.rating.data == 2 }}>
+                        <label for="star2">★</label>
+                        <input type="radio" id="star1" name="rating" value="1" {{ 'checked' if form.rating.data == 1 }}>
+                        <label for="star1">★</label>
+                    </div>
+                    {% if form.rating.errors %}
+                        {% for error in form.rating.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.photos.label(class="form-label") }}
+                    <div class="input-group">
+                        {{ form.photos(class="form-control", rows="3", placeholder="Enter one photo URL per line") }}
+                        <button class="btn btn-outline-secondary" type="button" onclick="addPhotoUrl()">Add Photo</button>
+                    </div>
+                    {% if form.photos.errors %}
+                        {% for error in form.photos.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    {{ form.videos.label(class="form-label") }}
+                    <div class="input-group">
+                        {{ form.videos(class="form-control", rows="3", placeholder="Enter one video URL per line") }}
+                        <button class="btn btn-outline-secondary" type="button" onclick="addVideoUrl()">Add Video</button>
+                    </div>
+                    {% if form.videos.errors %}
+                        {% for error in form.videos.errors %}
+                            <span class="text-danger">{{ error }}</span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <div class="mb-3 form-check">
+                    {{ form.is_public(class="form-check-input") }}
+                    {{ form.is_public.label(class="form-check-label") }}
+                </div>
+
+                <div class="d-grid gap-2">
+                    {{ form.submit(class="btn btn-primary") }}
+                    <a href="{{ url_for('profile') }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .rating-container {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+    }
+    .rating-container input[type="radio"] {
+        display: none;
+    }
+    .rating-container label {
+        font-size: 24px;
+        color: #ddd;
+        cursor: pointer;
+    }
+    .rating-container input[type="radio"]:checked ~ label {
+        color: #ffd700;
+    }
+    .rating-container input[type="radio"] ~ label:hover,
+    .rating-container input[type="radio"] ~ label:hover ~ label {
+        color: #ffd700;
+    }
+</style>
+
+<script>
+    function addPhotoUrl() {
+        const photos = document.getElementById('{{ form.photos.id }}');
+        photos.value += '\n' + prompt('Enter photo URL:');
+    }
+
+    function addVideoUrl() {
+        const videos = document.getElementById('{{ form.videos.id }}');
+        videos.value += '\n' + prompt('Enter video URL:');
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Emergency Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Add these new styles */
+        .services-list {
+            margin-top: 20px;
+        }
+        
+        .service-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+        }
+        
+        .service-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+        }
+        
+        .hospital { background: #ffcccc; color: #cc0000; }
+        .police { background: #cce5ff; color: #0044cc; }
+        .fire { background: #ffe6cc; color: #cc6600; }
+        
+        .service-info {
+            flex-grow: 1;
+        }
+        
+        .service-distance {
+            font-weight: bold;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- ... existing contacts section ... -->
+
+        <div class="card">
+            <h2>Nearby Emergency Services</h2>
+            <div id="nearby-services" class="services-list">
+                <!-- Services will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function loadNearbyServices() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    
+                    fetch(`/api/nearby?lat=${lat}&lng=${lng}`)
+                        .then(response => response.json())
+                        .then(services => {
+                            const container = document.getElementById('nearby-services');
+                            container.innerHTML = '';
+                            
+                            services.forEach(service => {
+                                const card = document.createElement('div');
+                                card.className = 'service-card';
+                                
+                                const iconClass = {
+                                    'Emergency Medical Services': 'hospital',
+                                    'Police Stations': 'police',
+                                    'Fire Departments': 'fire'
+                                }[service.type];
+                                
+                                card.innerHTML = `
+                                    <div class="service-icon ${iconClass}">
+                                        <i class="fas ${
+                                            service.type === 'Emergency Medical Services' ? 'fa-hospital' :
+                                            service.type === 'Police Stations' ? 'fa-shield-alt' : 'fa-fire'
+                                        }"></i>
+                                    </div>
+                                    <div class="service-info">
+                                        <h3>${service.name}</h3>
+                                        <p>${service.address}</p>
+                                        <p class="service-distance">${service.distance} away</p>
+                                    </div>
+                                `;
+                                
+                                container.appendChild(card);
+                            });
+                        });
+                }, error => {
+                    console.error('Error getting location:', error);
+                    alert('Please enable location access to view nearby services');
+                });
+            } else {
+                alert('Geolocation is not supported by your browser');
+            }
+        }
+
+        // Load services when page loads
+        loadNearbyServices();
+    </script>
+</body>
+</html>

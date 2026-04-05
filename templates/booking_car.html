@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-info text-white">
+            <h3 class="mb-0"><i class="fas fa-car"></i> Car Rental Booking</h3>
+        </div>
+        <div class="card-body">
+            <form method="POST" novalidate>
+                {{ form.hidden_tag() }}
+                
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.pickup_location.label(class="form-label") }}
+                            {{ form.pickup_location(class="form-control") }}
+                            {% for error in form.pickup_location.errors %}
+                                <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.drop_location.label(class="form-label") }}
+                            {{ form.drop_location(class="form-control") }}
+                            {% for error in form.drop_location.errors %}
+                                <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.pickup_date.label(class="form-label") }}
+                            {{ form.pickup_date(class="form-control", type="date") }}
+                            {% for error in form.pickup_date.errors %}
+                                <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.return_date.label(class="form-label") }}
+                            {{ form.return_date(class="form-control", type="date") }}
+                            {% for error in form.return_date.errors %}
+                                <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            {{ form.car_type.label(class="form-label") }}
+                            {{ form.car_type(class="form-control") }}
+                            {% for error in form.car_type.errors %}
+                                <span class="text-danger">{{ error }}</span>
+                            {% endfor %}
+                            <small class="form-text text-muted">Prices shown are per day</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    {{ form.submit(class="btn btn-info btn-lg") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set minimum date to today for pickup date
+        var today = new Date().toISOString().split('T')[0];
+        document.querySelector('#pickup_date').setAttribute('min', today);
+        
+        // Update return date min when pickup date changes
+        document.querySelector('#pickup_date').addEventListener('change', function() {
+            document.querySelector('#return_date').setAttribute('min', this.value);
+        });
+    });
+</script>
+{% endblock %}

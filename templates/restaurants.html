@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Nearby Restaurants{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <div class="card-header">Find Restaurants</div>
+        <div class="card-body">
+            <form method="POST">
+                <input type="text" name="location" class="form-control" placeholder="Enter a location" required>
+                <button type="submit" class="btn btn-primary mt-2">Search</button>
+            </form>
+
+            {% if restaurants %}
+                <h5 class="mt-4">Restaurants near "{{ location }}"</h5>
+                <ul class="list-group mt-3">
+                    {% for r in restaurants %}
+                        <li class="list-group-item">
+                            <strong>{{ r.name }}</strong> <br>
+                            <a href="{{ r.map_url }}" target="_blank">
+                                <small class="text-muted">📍 View on Google Maps</small>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% elif location %}
+                <p class="text-muted mt-3">No restaurants found for that location.</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
+

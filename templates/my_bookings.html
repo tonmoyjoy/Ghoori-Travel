@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Bookings</title>
+    <style>
+        body { font-family: sans-serif; background: #f0f8ff; padding: 20px; }
+        .booking { background: white; padding: 20px; margin-bottom: 10px; border-radius: 10px; box-shadow: 0 0 8px #ccc; }
+    </style>
+</head>
+<body>
+    <h2>My Bookings</h2>
+    {% for booking in bookings %}
+        <div class="booking">
+            <p><strong>Type:</strong> {{ booking.booking_type }}</p>
+            <p><strong>Date:</strong> {{ booking.booked_at.strftime('%Y-%m-%d') }}</p>
+            <pre>{{ booking.details }}</pre>
+        </div>
+    {% endfor %}
+</body>
+</html>

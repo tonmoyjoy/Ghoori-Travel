@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Book Train - Ghoori.com{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-danger text-white">
+            <h3><i class="fas fa-train"></i> Train Booking</h3>
+        </div>
+        <div class="card-body">
+            <form method="POST">
+                {{ form.hidden_tag() }}
+                <div class="row g-3">
+                    {% for field in form if field.widget.input_type != 'hidden' %}
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            {{ field.label(class="form-label") }}
+                            {{ field(class="form-control") }}
+                            {% if field.errors %}
+                                <div class="invalid-feedback">
+                                    {% for error in field.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-danger btn-lg w-100">
+                        <i class="fas fa-check-circle"></i> Confirm Train Booking
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

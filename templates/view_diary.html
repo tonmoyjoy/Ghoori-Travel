@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">{{ diary.title }}</h3>
+                    {% if diary.user_id == current_user.id %}
+                    <div>
+                        <form action="{{ url_for('delete_diary', diary_id=diary.id) }}" method="POST" class="d-inline">
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this diary?')">Delete</button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <p class="lead">{{ diary.description }}</p>
+                        <small class="text-muted">Created: {{ diary.created_at.strftime('%B %d, %Y') }}</small>
+                        <small class="text-muted ms-3">Updated: {{ diary.updated_at.strftime('%B %d, %Y') }}</small>
+                    </div>
+
+                    {% if diary.photos %}
+                    <div class="mb-4">
+                        <h4>Photos</h4>
+                        <div class="row g-3">
+                            {% for photo in diary.photos %}
+                            <div class="col-md-4">
+                                <div class="card">
+                                    <img src="{{ url_for('static', filename='uploads/photos/' + photo.photo_path) }}" 
+                                         class="card-img-top" 
+                                         alt="Trip photo">
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if diary.videos %}
+                    <div class="mb-4">
+                        <h4>Videos</h4>
+                        <div class="row g-3">
+                            {% for video in diary.videos %}
+                            <div class="col-md-6">
+                                <div class="ratio ratio-16x9">
+                                    <video controls>
+                                        <source src="{{ url_for('static', filename='uploads/videos/' + video.video_path) }}" type="video/mp4">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="mb-4">
+                        <h4>Details</h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <h6>Hotel:</h6>
+                                    <p>{{ diary.hotel or 'Not specified' }}</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <h6>Restaurant:</h6>
+                                    <p>{{ diary.restaurant or 'Not specified' }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h4>Content</h4>
+                        <div class="content">{{ diary.content }}</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h4>Rating</h4>
+                        <div class="rating d-flex align-items-center">
+                            <!-- Display stars -->
+                            {% for i in range(5) %}
+                                <i class="fas fa-star {% if i < diary.rating %}text-warning{% else %}text-muted{% endif %} me-1"></i>
+                            {% endfor %}
+                            <!-- Display numerical rating -->
+                            <span class="ms-3">{{ "%.1f"|format(diary.rating) }}/5</span>
+                            <!-- Add rating description -->
+                            <span class="ms-3 text-muted">
+                                {% if diary.rating >= 4.5 %}Excellent
+                                {% elif diary.rating >= 3.5 %}Good
+                                {% elif diary.rating >= 2.5 %}Average
+                                {% elif diary.rating >= 1.5 %}Poor
+                                {% else %}Very Poor
+                                {% endif %}
+                            </span>
+                        </div>
+                        <!-- Add rating explanation -->
+                        {% if diary.rating_explanation %}
+                        <div class="mt-2">
+                            <p class="text-muted">{{ diary.rating_explanation }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    {% if not diary.is_public and diary.user_id == current_user.id %}
+                    <div class="alert alert-info">
+                        This diary is private. Only you can see it.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
