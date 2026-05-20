@@ -28,6 +28,7 @@ var/
 venv/
 .venv/
 ENV/
+.env
 
 # IDE files
 .idea/
@@ -43,3 +44,8 @@ ENV/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# Ensure local environment file is ignored and example is kept in repo
+.env
+!.env.example
+
