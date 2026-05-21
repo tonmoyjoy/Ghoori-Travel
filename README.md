@@ -67,6 +67,22 @@ Ghoori.com is a full-featured Flask-based web application designed as an integra
 - **Verify & Scan:** enable GitHub secret scanning and run local checks before pushing.
 - **Avoid Logging Secrets:** never print or log secret values in application logs.
 
+### Rotation & Recovery — Quick Links
+
+- **Google OAuth (Client ID / Secret):** https://console.cloud.google.com/apis/credentials — open your project, locate the OAuth 2.0 client, reset or create a new client, update redirect URIs, and revoke the old secret.
+- **Google API Keys (Maps/Gemini):** https://console.cloud.google.com/apis/credentials and https://cloud.google.com/docs/authentication/api-keys — regenerate keys and apply API/referrer restrictions.
+- **Stripe Keys & Webhooks:** https://dashboard.stripe.com/apikeys and https://dashboard.stripe.com/webhooks — create new API keys, create or rotate webhook signing secret, then remove old keys/endpoints.
+- **GitHub Secrets (Actions/CI):** https://docs.github.com/en/actions/security-guides/encrypted-secrets — update repository/organization secrets with new values (do not store secrets in code).
+- **Verify & Scan:** https://docs.github.com/en/code-security/secret-scanning — re-run secret scanning after rotation and ensure no secrets remain in the repo or tags.
+
+Short recovery checklist:
+
+- Rotate the leaked credential in the provider dashboard.
+- Update your local `.env` with the new values (do not commit `.env`).
+- Update CI / GitHub repository secrets with the new values.
+- Test the integration locally (e.g., `python scripts/test_stripe_config.py` for Stripe).
+- Revoke/delete the old keys/webhook endpoints once new ones are confirmed working.
+
 5. **Initialize Database**
    ```bash
    python init_db.py
