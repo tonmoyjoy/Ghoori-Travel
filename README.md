@@ -57,6 +57,16 @@ Ghoori.com is a full-featured Flask-based web application designed as an integra
    - Copy `.env.example` to `.env`
    - Add your API keys (Stripe, Google OAuth, Maps)
 
+## Secret Management Checklist
+
+- **Use `.env`:** store all secrets (API keys, client secrets, webhook secrets) in a local `.env` file and never commit it.
+- **Provide `.env.example`:** keep only placeholder values in `.env.example` so contributors know required variables.
+- **Ignore `.env`:** ensure `.gitignore` contains `.env` (already configured).
+- **Rotate Exposed Keys:** if a secret was accidentally committed, revoke/rotate it immediately (Google Cloud Console, Stripe dashboard, etc.).
+- **Use Secrets for CI:** store production secrets in GitHub Actions / CI secret stores, not in the repo.
+- **Verify & Scan:** enable GitHub secret scanning and run local checks before pushing.
+- **Avoid Logging Secrets:** never print or log secret values in application logs.
+
 5. **Initialize Database**
    ```bash
    python init_db.py
